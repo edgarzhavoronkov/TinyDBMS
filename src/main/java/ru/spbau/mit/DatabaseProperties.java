@@ -1,5 +1,7 @@
 package ru.spbau.mit;
 
+import ru.spbau.mit.memory.FileDataManager;
+
 import java.util.InvalidPropertiesFormatException;
 
 /**
@@ -14,10 +16,10 @@ public class DatabaseProperties {
     private static final String FILE = "file";
     private static final String CACHE = "cache";
 
-    private static final int MIN_CACHE_SIZE = 1000;
+    private static final int MIN_CACHE_SIZE = 10;
 
     private String dirPath;
-    private String filePath;
+    private String fileName;
     private Integer cacheSize;
 
     private DatabaseProperties() {
@@ -40,7 +42,7 @@ public class DatabaseProperties {
                     databaseProperties.setDirPath(argValue);
                     break;
                 case FILE:
-                    databaseProperties.setFilePath(argValue);
+                    databaseProperties.setFileName(argValue);
                     break;
                 case CACHE:
                     try {
@@ -62,6 +64,7 @@ public class DatabaseProperties {
     private static void setDefaultOptions(DatabaseProperties databaseProperties) {
         if (databaseProperties.getDirPath() == null) databaseProperties.setDirPath(System.getProperty("user.dir"));
         if (databaseProperties.getCacheSize() == null) databaseProperties.setCacheSize(MIN_CACHE_SIZE);
+        if (databaseProperties.getFileName() == null) databaseProperties.setFileName(FileDataManager.DEFAULT_FILE_NAME);
     }
 
     public String getDirPath() {
@@ -72,12 +75,12 @@ public class DatabaseProperties {
         this.dirPath = dirPath;
     }
 
-    public String getFilePath() {
-        return filePath;
+    public String getFileName() {
+        return fileName;
     }
 
-    private void setFilePath(String filePath) {
-        this.filePath = filePath;
+    private void setFileName(String fileName) {
+        this.fileName = fileName;
     }
 
     public Integer getCacheSize() {

@@ -13,4 +13,8 @@ public enum DataType {
     DataType(Class<?> type) {
         this.type = type;
     }
+
+    public Class<?> getType() {
+        return type;
+    }
 }

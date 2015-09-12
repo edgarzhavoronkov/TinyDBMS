@@ -11,8 +11,27 @@ import java.util.List;
  */
 public interface Page {
 
-    List<Record> getAllRecords();
+    public static final Integer SIZE = 4 * 1024;
+
+    List<Record> getAllRecords(Table table);
 
     Record getRecord(Integer num, Table table);
 
+    byte[] getData();
+
+    int getId();
+
+    void putRecord(Record record, Table table);
+
+    void makeDirty();
+
+    void makeClean();
+
+    boolean isDirty();
+
+    void pin();
+
+    void unpin();
+
+    boolean isPin();
 }

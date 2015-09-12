@@ -2,8 +2,8 @@ package ru.spbau.mit.memory;
 
 import ru.spbau.mit.DatabaseProperties;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Class for working with cache
@@ -11,9 +11,11 @@ import java.util.List;
  * Created by John on 9/12/2015.
  */
 public class BufferManager {
-    private List<Page> pages;
+    private Map<Integer, Page> pages;
+
+    private FileDataManager fileDataManager;
 
     public BufferManager(DatabaseProperties properties) {
-        this.pages = new ArrayList<>(properties.getCacheSize());
+        this.pages = new HashMap<>(properties.getCacheSize());
     }
 }
