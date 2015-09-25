@@ -17,9 +17,7 @@ public class FileDataManager {
     private Long pageCount;
 
     public FileDataManager(DatabaseProperties databaseProperties) throws IOException {
-        //todo: make for Win and Linux
-//        File file = new File(databaseProperties.getDirPath() + "\\" + databaseProperties.getFileName());
-        File file = new File(databaseProperties.getFileName());
+        File file = new File(databaseProperties.getDirPath() + "\\" + databaseProperties.getFileName());
 
         boolean isNewFile = false;
         if (!file.exists()) {

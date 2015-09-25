@@ -11,6 +11,8 @@ public class Table {
 
     private List<Column> columns;
 
+    private Integer recordSize;
+
     public Table(String name, List<Column> columns) {
         this.name = name;
         this.columns = columns;

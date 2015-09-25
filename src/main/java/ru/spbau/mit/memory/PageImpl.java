@@ -1,7 +1,6 @@
 package ru.spbau.mit.memory;
 
 import ru.spbau.mit.meta.Column;
-import ru.spbau.mit.meta.DataType;
 import ru.spbau.mit.meta.Table;
 
 import java.nio.ByteBuffer;
@@ -9,7 +8,7 @@ import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
 
-import static ru.spbau.mit.meta.DataType.INTEGER;
+
 
 /**
  * PageImpl of byteBuffer
@@ -31,12 +30,16 @@ public class PageImpl implements Page {
         this.id = id;
     }
 
+    public ByteBuffer getByteBuffer() {
+        return this.byteBuffer;
+    }
+
     private int getRecordCount(){
-        return byteBuffer.getInt(Page.SIZE - 4);
+        return byteBuffer.getInt(Page.SIZE - Integer.BYTES);
     }
 
     private void setRecordCount(int recordCount) {
-        byteBuffer.putInt(recordCount, Page.SIZE - 4);
+        byteBuffer.putInt(recordCount, Page.SIZE - Integer.BYTES);
     }
 
     @Override
@@ -68,11 +71,8 @@ public class PageImpl implements Page {
     @Override
     public Record getRecord(Integer num, Table table) {
         assert (num < getRecordCount());
-
-
         return null;
     }
-
 
     @Override
     public byte[] getData() {
@@ -85,48 +85,20 @@ public class PageImpl implements Page {
 
         int lastFreePos = 0;
         if (recordCount > 0) {
-            lastFreePos = getLastFreePos();
+            lastFreePos = getLastFreePos(table);
         }
 
         byteBuffer.position(lastFreePos);
 
-        //todo: refactor maybe
         Map<String, Object> values = record.getValues();
         for (Column column : table.getColumns()) {
-            switch (column.getDataType()) {
-                case INTEGER:
-                    put((Integer) values.get(column.getName()));
-                    break;
-                case DOUBLE:
-                    put((Double) values.get(column.getName()));
-                    break;
-                case VARCHAR:
-                    put((String) values.get(column.getName()));
-                    break;
-                default:
-                    put(values.get(column.getName()));
-            }
+            column.getDataType().putInPage(values.get(column.getName()), this);
         }
 
+        setRecordCount(getRecordCount() + 1);
     }
 
-    private void put(Object value) {
-        throw new ClassCastException("Invalid class " + value.getClass());
-    }
-
-    private void put(Integer value) {
-        byteBuffer.putInt(value);
-    }
-
-    private void put(String value) {
-        byteBuffer.put(value.getBytes(Charset.defaultCharset()));
-    }
-
-    private void put(Double value) {
-        byteBuffer.putDouble(value);
-    }
-
-    private int getLastFreePos() {
+    private int getLastFreePos(Table table) {
         int recordCount = getRecordCount();
         return byteBuffer.getInt(Page.SIZE - (recordCount * 4));
     }

@@ -2,6 +2,7 @@ package ru.spbau.mit.memory;
 
 import ru.spbau.mit.meta.Table;
 
+import java.nio.ByteBuffer;
 import java.util.List;
 
 /**
@@ -16,6 +17,8 @@ public interface Page {
     List<Record> getAllRecords(Table table);
 
     Record getRecord(Integer num, Table table);
+
+    ByteBuffer getByteBuffer();
 
     byte[] getData();
 
