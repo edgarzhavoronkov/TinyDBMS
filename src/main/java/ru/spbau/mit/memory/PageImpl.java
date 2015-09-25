@@ -18,10 +18,15 @@ import java.util.Map;
 public class PageImpl implements Page {
     private ByteBuffer byteBuffer;
 
+    private long operationId;
     private int id;
 
     private boolean dirty;
     private int pinCount;
+
+    public PageImpl(int id) {
+        this.id = id;
+    }
 
     public PageImpl(byte[] data, Integer id) {
         assert data.length == SIZE;
@@ -61,6 +66,16 @@ public class PageImpl implements Page {
     @Override
     public boolean isPin() {
         return pinCount > 0;
+    }
+
+    @Override
+    public long getLastOperationId() {
+        return operationId;
+    }
+
+    @Override
+    public void updateOperationId(Long operationId) {
+        this.operationId = operationId;
     }
 
     @Override
@@ -118,4 +133,19 @@ public class PageImpl implements Page {
         return false;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        PageImpl page = (PageImpl) o;
+
+        return id == page.id;
+
+    }
+
+    @Override
+    public int hashCode() {
+        return id;
+    }
 }

@@ -53,7 +53,7 @@ public class FileDataManager {
 
     public void savePage(Page page) throws IOException {
         assert (page.getId() < pageCount);
-
+        if (!page.isDirty()) return;
         takeToPageStart(page);
         file.write(page.getData(), 0, Page.SIZE);
     }
