@@ -3,6 +3,11 @@ package ru.spbau.mit;
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.statement.Statement;
+import net.sf.jsqlparser.statement.create.table.CreateTable;
+import net.sf.jsqlparser.statement.insert.Insert;
+import net.sf.jsqlparser.statement.select.Select;
+import net.sf.jsqlparser.statement.update.Update;
+import ru.spbau.mit.controllers.*;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -29,6 +34,23 @@ public class ConsoleController {
             String line = input.readLine();
             if(line.length() == 0 && command.length() > 0){
                 Statement statement = CCJSqlParserUtil.parse(command.toString());
+                QueryController controller;
+
+                if (statement instanceof CreateTable) {
+                    controller = new CreateController();
+                    controller.process(statement);
+                } else if (statement instanceof Insert) {
+                    controller = new InsertController();
+                    controller.process(statement);
+                } else if (statement instanceof Update) {
+                    controller = new UpdateController();
+                    controller.process(statement);
+                } else if (statement instanceof Select) {
+                    controller = new SelectController();
+                    controller.process(statement);
+                } else {
+                    System.out.println("Unknown command! Please try again");
+                }
                 System.out.println(statement);
                 command = new StringBuilder();
             }
