@@ -3,6 +3,7 @@ package ru.spbau.mit.memory;
 import ru.spbau.mit.meta.Table;
 
 import java.nio.ByteBuffer;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -37,4 +38,9 @@ public interface Page {
     void unpin();
 
     boolean isPin();
+
+    long getLastOperationId();
+
+    void updateOperationId(Long id);
+
 }
