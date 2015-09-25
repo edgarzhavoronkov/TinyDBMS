@@ -10,7 +10,7 @@ import java.util.TreeSet;
 
 /**
  * Class for working with cache
- *
+ * <p>
  * Created by John on 9/12/2015.
  */
 public class BufferManager {
@@ -33,7 +33,7 @@ public class BufferManager {
 
 
     public Page getPage(Integer id) throws IOException {
-        Page page = new PageImpl(id);
+        Page page = new PageImpl(null, id);
         if (pages.contains(page)) {
             page = pages.floor(page);
             removePageFromBuffer(page);
@@ -56,7 +56,7 @@ public class BufferManager {
 
     private void addPageToBuffer(Page page) throws IOException {
         page.updateOperationId(operationId++);
-        if (CAPACITY == (pages.size() + pinedPages.size())){
+        if (CAPACITY == (pages.size() + pinedPages.size())) {
             fileDataManager.savePage(pages.pollFirst());
         }
         pages.add(page);
@@ -73,7 +73,7 @@ public class BufferManager {
     public void unPinned(Page page) throws Exception {
         assert (!page.isPin());
         page.unpin();
-        if (!page.isPin() && !pinedPages.remove(page)){
+        if (!page.isPin() && !pinedPages.remove(page)) {
             //todo add Exception
             throw new Exception();
         }

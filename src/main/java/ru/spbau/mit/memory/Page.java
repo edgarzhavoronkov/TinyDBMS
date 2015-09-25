@@ -15,17 +15,20 @@ public interface Page {
 
     public static final Integer SIZE = 4 * 1024;
 
-    List<Record> getAllRecords(Table table);
+    List<Record> getAllRecords();
 
-    Record getRecord(Integer num, Table table);
+    Record getRecord(Integer num);
 
     ByteBuffer getByteBuffer();
+
+    //todo better table inference implementation
+    void setTable(Table table);
 
     byte[] getData();
 
     int getId();
 
-    void putRecord(Record record, Table table);
+    void putRecord(Record record);
 
     void makeDirty();
 

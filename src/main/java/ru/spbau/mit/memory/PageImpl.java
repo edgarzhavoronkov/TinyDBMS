@@ -4,47 +4,69 @@ import ru.spbau.mit.meta.Column;
 import ru.spbau.mit.meta.Table;
 
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
+import java.util.BitSet;
 import java.util.List;
 import java.util.Map;
 
 
-
 /**
  * PageImpl of byteBuffer
- *
+ * <p>
  * Created by John on 9/12/2015.
  */
 public class PageImpl implements Page {
+    private final int NEXT_PAGE_OFFSET = 4;
+    private final int RECORD_COUNT_OFFSET = 6;
+    private final int BIT_MASK_OFFSET = 134;
+
+    private Table table;
+
+    public void setTable(Table table) {
+        this.table = table;
+    }
+
+    private BitSet bitSet;
+
     private ByteBuffer byteBuffer;
 
     private long operationId;
+    private Short recordCount;
     private int id;
 
     private boolean dirty;
     private int pinCount;
 
-    public PageImpl(int id) {
-        this.id = id;
-    }
-
     public PageImpl(byte[] data, Integer id) {
         assert data.length == SIZE;
 
         byteBuffer = ByteBuffer.wrap(data);
+
         this.id = id;
+    }
+
+    private BitSet getBitSet() {
+        if (bitSet == null) {
+            byte[] bytes = new byte[BIT_MASK_OFFSET - RECORD_COUNT_OFFSET];
+            byteBuffer.get(bytes, Page.SIZE - BIT_MASK_OFFSET, BIT_MASK_OFFSET - RECORD_COUNT_OFFSET);
+            bitSet = BitSet.valueOf(bytes);
+        }
+        return bitSet;
     }
 
     public ByteBuffer getByteBuffer() {
         return this.byteBuffer;
     }
 
-    private int getRecordCount(){
-        return byteBuffer.getInt(Page.SIZE - Integer.BYTES);
+    public short getRecordCount() {
+        if (recordCount == null) {
+            recordCount = byteBuffer.getShort(Page.SIZE - RECORD_COUNT_OFFSET);
+        }
+        return recordCount;
     }
 
-    private void setRecordCount(int recordCount) {
-        byteBuffer.putInt(recordCount, Page.SIZE - Integer.BYTES);
+    private void setRecordCount(short recordCount) {
+        this.recordCount = recordCount;
+        byteBuffer.putShort(Page.SIZE - RECORD_COUNT_OFFSET, recordCount);
     }
 
     @Override
@@ -79,13 +101,14 @@ public class PageImpl implements Page {
     }
 
     @Override
-    public List<Record> getAllRecords(Table table) {
+    public List<Record> getAllRecords() {
         return null;
     }
 
     @Override
-    public Record getRecord(Integer num, Table table) {
+    public Record getRecord(Integer num) {
         assert (num < getRecordCount());
+        //todo index before
         return null;
     }
 
@@ -94,28 +117,29 @@ public class PageImpl implements Page {
         return byteBuffer.array();
     }
 
-    @Override
-    public void putRecord(Record record, Table table) {
-        int recordCount = getRecordCount();
-
-        int lastFreePos = 0;
-        if (recordCount > 0) {
-            lastFreePos = getLastFreePos(table);
+    private int getFirstFreePos() {
+        BitSet bitSet = getBitSet();
+        for (int i = 0; i < (Page.SIZE - BIT_MASK_OFFSET) / table.getRecordSize(); i++) {
+            if (!bitSet.get(i)){
+                return i;
+            }
         }
+        return -1;
+    }
 
-        byteBuffer.position(lastFreePos);
+    @Override
+    public void putRecord(Record record) {
+        assert (getRecordCount() * (table.getRecordSize() + 1) > (Page.SIZE - BIT_MASK_OFFSET));
+
+        byteBuffer.position(getFirstFreePos());
 
         Map<String, Object> values = record.getValues();
         for (Column column : table.getColumns()) {
             column.getDataType().putInPage(values.get(column.getName()), this);
         }
 
-        setRecordCount(getRecordCount() + 1);
-    }
-
-    private int getLastFreePos(Table table) {
-        int recordCount = getRecordCount();
-        return byteBuffer.getInt(Page.SIZE - (recordCount * 4));
+        makeDirty();
+        setRecordCount((short) (getRecordCount() + 1));
     }
 
     @Override

@@ -18,6 +18,10 @@ public class Table {
         this.columns = columns;
     }
 
+    public Integer getRecordSize() {
+        return recordSize;
+    }
+
     public String getName() {
         return name;
     }
