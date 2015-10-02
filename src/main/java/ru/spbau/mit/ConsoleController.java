@@ -8,10 +8,12 @@ import net.sf.jsqlparser.statement.insert.Insert;
 import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.statement.update.Update;
 import ru.spbau.mit.controllers.*;
+import ru.spbau.mit.memory.BufferManager;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.ByteBuffer;
 
 /**
  * Input Output Controller
@@ -20,11 +22,13 @@ import java.io.InputStreamReader;
  */
 public class ConsoleController {
 
-    DatabaseProperties databaseProperties;
+    static DatabaseProperties databaseProperties;
+    static BufferManager bufferManager;
 
     public static void main(String[] args) throws IOException, JSQLParserException {
         System.out.println("Tiny Database command line tool\n");
-        DatabaseProperties databaseProperties = DatabaseProperties.setOptions(args);
+        databaseProperties = DatabaseProperties.setOptions(args);
+        bufferManager = new BufferManager(databaseProperties);
 
         System.out.println("Type 2 times ENTER to execute any SQL command.");
 

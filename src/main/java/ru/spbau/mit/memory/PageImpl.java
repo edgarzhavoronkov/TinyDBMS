@@ -5,6 +5,7 @@ import ru.spbau.mit.meta.Table;
 
 import java.nio.ByteBuffer;
 import java.util.BitSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -25,6 +26,7 @@ public class PageImpl implements Page {
         this.table = table;
     }
 
+    //Save 1 - for used positions; 0 - for free
     private BitSet bitSet;
 
     private ByteBuffer byteBuffer;
@@ -108,8 +110,24 @@ public class PageImpl implements Page {
     @Override
     public Record getRecord(Integer num) {
         assert (num < getRecordCount());
-        //todo index before
-        return null;
+        int cur = 0;
+        int i;
+
+        for (i = 0; i < getBitSet().size(); i++) {
+            if (getBitSet().get(i)) {
+                cur++;
+            }
+            if (cur == num) {
+                break;
+            }
+        }
+
+        Map<Column, Object> values = new HashMap<>(table.getColumns().size());
+        byteBuffer.position(table.getRecordSize() * i);
+        for (Column column : table.getColumns()) {
+            values.put(column, column.getDataType().getFromPage(this));
+        }
+        return new Record(values);
     }
 
     @Override
@@ -120,25 +138,28 @@ public class PageImpl implements Page {
     private int getFirstFreePos() {
         BitSet bitSet = getBitSet();
         for (int i = 0; i < (Page.SIZE - BIT_MASK_OFFSET) / table.getRecordSize(); i++) {
-            if (!bitSet.get(i)){
+            if (!bitSet.get(i)) {
                 return i;
             }
         }
         return -1;
+
     }
 
     @Override
     public void putRecord(Record record) {
         assert (getRecordCount() * (table.getRecordSize() + 1) > (Page.SIZE - BIT_MASK_OFFSET));
 
-        byteBuffer.position(getFirstFreePos());
+        int firstFreePos = getFirstFreePos();
+        byteBuffer.position(firstFreePos);
 
-        Map<String, Object> values = record.getValues();
+        Map<Column, Object> values = record.getValues();
         for (Column column : table.getColumns()) {
-            column.getDataType().putInPage(values.get(column.getName()), this);
+            column.getDataType().putInPage(values.get(column), this);
         }
 
         makeDirty();
+        getBitSet().set(firstFreePos, true);
         setRecordCount((short) (getRecordCount() + 1));
     }
 

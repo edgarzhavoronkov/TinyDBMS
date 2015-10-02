@@ -11,11 +11,14 @@ public class Table {
 
     private List<Column> columns;
 
-    private Integer recordSize;
+    private int recordSize = 0;
 
     public Table(String name, List<Column> columns) {
         this.name = name;
         this.columns = columns;
+        for (Column column : columns) {
+            recordSize += column.getDataType().getSize();
+        }
     }
 
     public Integer getRecordSize() {

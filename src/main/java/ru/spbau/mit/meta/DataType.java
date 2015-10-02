@@ -9,7 +9,7 @@ import java.io.ObjectInputStream;
  * Created by John on 9/12/2015.
  */
 public enum DataType {
-    INTEGER (Integer.class, Integer.SIZE) {
+    INTEGER (Integer.class, Integer.BYTES) {
         @Override
         public void putInPage(Object o, Page page) {
             page.getByteBuffer().putInt((Integer)o);
@@ -20,7 +20,7 @@ public enum DataType {
             return page.getByteBuffer().getInt();
         }
     },
-    DOUBLE (Double.class, Double.SIZE) {
+    DOUBLE (Double.class, Double.BYTES) {
         @Override
         public void putInPage(Object o, Page page) {
             page.getByteBuffer().putDouble((Double)o);

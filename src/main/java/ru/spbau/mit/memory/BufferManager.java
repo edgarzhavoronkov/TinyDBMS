@@ -1,6 +1,7 @@
 package ru.spbau.mit.memory;
 
 import ru.spbau.mit.DatabaseProperties;
+import ru.spbau.mit.meta.Table;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -26,13 +27,14 @@ public class BufferManager {
     private TreeSet<Page> pinedPages;
 
 
-    public BufferManager(DatabaseProperties properties) {
+    public BufferManager(DatabaseProperties properties) throws IOException {
         this.pages = new TreeSet<>((o1, o2) -> (int) (o1.getLastOperationId() - o2.getLastOperationId()));
         pinedPages = new TreeSet<>();
+        fileDataManager = new FileDataManager(properties);
     }
 
 
-    public Page getPage(Integer id) throws IOException {
+    public Page getPage(Integer id, Table table) throws IOException {
         Page page = new PageImpl(null, id);
         if (pages.contains(page)) {
             page = pages.floor(page);
@@ -44,6 +46,7 @@ public class BufferManager {
             return pinedPages.floor(page);
         }
         page = fileDataManager.getPageById(id);
+        page.setTable(table);
         addPageToBuffer(page);
         return page;
     }
