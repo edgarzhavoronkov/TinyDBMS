@@ -16,6 +16,7 @@ import java.util.Map;
  * Created by John on 9/12/2015.
  */
 public class PageImpl implements Page {
+    //todo must use next page offset
     private final int NEXT_PAGE_OFFSET = 4;
     private final int RECORD_COUNT_OFFSET = 6;
     private final int BIT_MASK_OFFSET = 134;
