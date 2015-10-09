@@ -3,7 +3,6 @@ package ru.spbau.mit.memory;
 import ru.spbau.mit.meta.Table;
 
 import java.nio.ByteBuffer;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -12,6 +11,8 @@ import java.util.List;
  * Created by John on 9/12/2015.
  */
 public interface Page {
+
+    public short getRecordCount();
 
     public static final Integer SIZE = 4 * 1024;
 
@@ -45,5 +46,9 @@ public interface Page {
     long getLastOperationId();
 
     void updateOperationId(Long id);
+
+    boolean hasNext();
+
+    int getNextPageId();
 
 }

@@ -60,6 +60,7 @@ public class PageImpl implements Page {
         return this.byteBuffer;
     }
 
+    @Override
     public short getRecordCount() {
         if (recordCount == null) {
             recordCount = byteBuffer.getShort(Page.SIZE - RECORD_COUNT_OFFSET);
@@ -108,7 +109,7 @@ public class PageImpl implements Page {
         return null;
     }
 
-    @Override
+    @Override //TODO - very ineffective realization - cast data to array at initialize, better to use 134byte in
     public Record getRecord(Integer num) {
         assert (num < getRecordCount());
         int cur = 0;
@@ -176,7 +177,7 @@ public class PageImpl implements Page {
 
     @Override
     public boolean isDirty() {
-        return false;
+        return dirty;
     }
 
     @Override
@@ -193,5 +194,16 @@ public class PageImpl implements Page {
     @Override
     public int hashCode() {
         return id;
+    }
+
+    @Override
+    public boolean hasNext(){
+        //todo - fix
+        return false;
+    }
+
+    @Override
+    public int getNextPageId(){
+        return -1;
     }
 }
