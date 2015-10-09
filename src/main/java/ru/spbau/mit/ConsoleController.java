@@ -13,7 +13,6 @@ import ru.spbau.mit.memory.BufferManager;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.ByteBuffer;
 
 /**
  * Input Output Controller
@@ -25,10 +24,20 @@ public class ConsoleController {
     static DatabaseProperties databaseProperties;
     static BufferManager bufferManager;
 
+    static CreateController createController;
+    static SelectController selectController;
+    static InsertController insertController;
+    static UpdateController updateController;
+
     public static void main(String[] args) throws IOException, JSQLParserException {
         System.out.println("Tiny Database command line tool\n");
         databaseProperties = DatabaseProperties.setOptions(args);
         bufferManager = new BufferManager(databaseProperties);
+
+        createController = CreateController.getInstance(bufferManager);
+        selectController = SelectController.getInstance(bufferManager);
+        insertController = InsertController.getInstance(bufferManager);
+        updateController = UpdateController.getInstance(bufferManager);
 
         System.out.println("Type 2 times ENTER to execute any SQL command.");
 
@@ -38,30 +47,24 @@ public class ConsoleController {
             String line = input.readLine();
             if(line.length() == 0 && command.length() > 0){
                 Statement statement = CCJSqlParserUtil.parse(command.toString());
-                QueryController controller;
 
                 if (statement instanceof CreateTable) {
-                    controller = new CreateController();
-                    controller.process(statement);
+                    createController.process(statement);
                 } else if (statement instanceof Insert) {
-                    controller = new InsertController();
-                    controller.process(statement);
+                    insertController.process(statement);
                 } else if (statement instanceof Update) {
-                    controller = new UpdateController();
-                    controller.process(statement);
+                    updateController.process(statement);
                 } else if (statement instanceof Select) {
-                    controller = new SelectController();
-                    controller.process(statement);
+                    selectController.process(statement);
                 } else {
                     System.out.println("Unknown command! Please try again");
                 }
+
                 System.out.println(statement);
                 command = new StringBuilder();
             }
 
-
             if (line.toLowerCase().trim().equals("quit")) break;
-
             command.append(line).append('\n');
         }
     }
