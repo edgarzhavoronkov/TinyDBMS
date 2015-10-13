@@ -59,6 +59,15 @@ public class ConsoleController {
             if (line.toLowerCase().trim().equals("quit")) break;
             command.append(line).append('\n');
         }
+
+
+        onQuit();
+    }
+
+    private static void onQuit() throws IOException {
+        bufferManager.onQuit();
+
+        PropertiesManager.onQuit();
     }
 
     private static void initialize() throws IOException {

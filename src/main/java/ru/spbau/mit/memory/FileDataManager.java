@@ -17,6 +17,7 @@ public class FileDataManager {
     private int firstFreePage;
 
     public FileDataManager() throws IOException {
+
         String dirPath = PropertiesManager.getProperties().getProperty("dir_path");
         String dataFileName = PropertiesManager.getProperties().getProperty("data_file_name");
         File file = new File(dirPath + "\\" + dataFileName);
@@ -74,11 +75,12 @@ public class FileDataManager {
     }
 
     private void append() throws IOException {
-        file.setLength(file.length() + INIT_PAGE_COUNT);
+        file.setLength(file.length() + INIT_PAGE_COUNT * Page.SIZE);
         pageCount += INIT_PAGE_COUNT;
     }
 
     public void onQuit() throws IOException {
+        PropertiesManager.getProperties().setProperty("first_free_page", String.valueOf(firstFreePage));
         file.close();
     }
 }

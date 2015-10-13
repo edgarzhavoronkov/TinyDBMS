@@ -78,4 +78,8 @@ public class BufferManager {
         }
         addPageToBuffer(page);
     }
+
+    public void onQuit() throws IOException {
+        fileDataManager.onQuit();
+    }
 }

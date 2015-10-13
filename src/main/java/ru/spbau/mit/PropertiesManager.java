@@ -1,6 +1,8 @@
 package ru.spbau.mit;
 
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Properties;
 
@@ -16,9 +18,9 @@ final public class PropertiesManager {
             return prop;
         }
         prop = new Properties();
-        try {
+        try (FileInputStream inputStream = new FileInputStream(PROP_FILE_NAME)) {
             prop = new Properties();
-            prop.load(new FileInputStream(PROP_FILE_NAME));
+            prop.load(inputStream);
             return prop;
         } catch (IOException e) {
             e.printStackTrace();
@@ -26,4 +28,14 @@ final public class PropertiesManager {
         }
     }
 
+    public static void onQuit() throws IOException {
+        if (prop != null) {
+            try (FileOutputStream outputStream = new FileOutputStream(PROP_FILE_NAME)) {
+                prop.store(outputStream, "Changed in " + System.currentTimeMillis());
+            } catch (IOException e) {
+                e.printStackTrace();
+                throw new RuntimeException(e);
+            }
+        }
+    }
 }

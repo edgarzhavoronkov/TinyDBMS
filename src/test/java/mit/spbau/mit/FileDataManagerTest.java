@@ -2,6 +2,7 @@ package mit.spbau.mit;
 
 
 import org.junit.Test;
+import ru.spbau.mit.PropertiesManager;
 import ru.spbau.mit.memory.FileDataManager;
 
 import java.io.IOException;
@@ -12,11 +13,13 @@ import java.io.IOException;
 public class FileDataManagerTest {
 
 //    @Test
-//    public void test() throws IOException {
+//    public void addNewPagesTest() throws IOException {
 //        FileDataManager fileDataManager = new FileDataManager();
-//        for (int i = 0; i < 20; i++) {
+//        for (int i = 0; i < 10; i++) {
 //            fileDataManager.getFirstFreePage();
 //        }
+//        fileDataManager.onQuit();
+//        PropertiesManager.onQuit();
 //    }
 
 }
