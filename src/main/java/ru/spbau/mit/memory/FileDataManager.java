@@ -3,6 +3,7 @@ package ru.spbau.mit.memory;
 import ru.spbau.mit.PropertiesManager;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
@@ -20,7 +21,8 @@ public class FileDataManager {
 
         String dirPath = PropertiesManager.getProperties().getProperty("dir_path");
         String dataFileName = PropertiesManager.getProperties().getProperty("data_file_name");
-        File file = new File(dirPath + "\\" + dataFileName);
+        new File(dirPath).mkdirs();
+        File file = new File(dirPath + "/" + dataFileName);
 
         boolean isNewFile = false;
         if (!file.exists()) {

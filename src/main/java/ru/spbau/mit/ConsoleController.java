@@ -9,6 +9,7 @@ import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.statement.update.Update;
 import ru.spbau.mit.controllers.*;
 import ru.spbau.mit.memory.BufferManager;
+import ru.spbau.mit.meta.QueryResponse;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -41,7 +42,12 @@ public class ConsoleController {
                 Statement statement = CCJSqlParserUtil.parse(command.toString());
 
                 if (statement instanceof CreateTable) {
-                    createController.process(statement);
+                    QueryResponse response = createController.process(statement);
+                    if (response.getStatus() == QueryResponse.QueryStatus.OK) {
+                        System.out.println("OK");
+                    } else {
+                        System.out.println("ERROR" + response.getErrorMessageText());
+                    }
                 } else if (statement instanceof Insert) {
                     insertController.process(statement);
                 } else if (statement instanceof Update) {
@@ -52,7 +58,7 @@ public class ConsoleController {
                     System.out.println("Unknown command! Please try again");
                 }
 
-                System.out.println(statement);
+                //System.out.println(statement);
                 command = new StringBuilder();
             }
 

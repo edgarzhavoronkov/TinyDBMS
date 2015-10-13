@@ -1,4 +1,4 @@
-package ru.spbau.mit.Cursors;
+package ru.spbau.mit.cursors;
 
 import java.io.IOException;
 import java.util.Iterator;

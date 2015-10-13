@@ -5,6 +5,7 @@ import net.sf.jsqlparser.statement.create.table.ColumnDefinition;
 import net.sf.jsqlparser.statement.create.table.CreateTable;
 import ru.spbau.mit.TableFactory;
 import ru.spbau.mit.memory.BufferManager;
+import ru.spbau.mit.memory.Page;
 import ru.spbau.mit.meta.Column;
 import ru.spbau.mit.meta.DataType;
 import ru.spbau.mit.meta.QueryResponse;
@@ -33,13 +34,12 @@ public class CreateController implements QueryController {
     @Override
     public QueryResponse process(Statement statement) throws IOException {
         CreateTable createTable = (CreateTable) statement;
-
         List<ColumnDefinition> columnDefinitions = createTable.getColumnDefinitions();
         List<Column> columns = new ArrayList<>();
         for (ColumnDefinition columnDefinition : columnDefinitions) {
             String columnName = columnDefinition.getColumnName();
             String columnDataType = columnDefinition.getColDataType().getDataType();
-            DataType dataType = null;
+            DataType dataType;
             switch (columnDataType) {
                 case "INT" : {
                     dataType = DataType.INTEGER;
@@ -62,12 +62,17 @@ public class CreateController implements QueryController {
             columns.add(column);
         }
         String tableName = createTable.getTable().getName();
-
-        //TODO pageIDs?
-        //int pageID = bufferManager.createPage();
-        //Table table = new Table(tableName, pageID, pageID, columns);
-        //TableFactory.addTable(table);
-        return null;
+        //TODO: is there a better way to do this?!
+        try {
+            Page firstFreePage = bufferManager.getFirstFreePage();
+            Table table = new Table(tableName, firstFreePage.getId(), firstFreePage.getId(), columns);
+            TableFactory.addTable(table);
+            return new QueryResponse(QueryResponse.QueryStatus.OK, null);
+        } catch (IOException e) {
+            QueryResponse response = new QueryResponse(QueryResponse.QueryStatus.Error, null);
+            response.setErrorMessageText(e.getMessage());
+            return response;
+        }
     }
 
 }

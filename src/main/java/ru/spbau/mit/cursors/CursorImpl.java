@@ -1,4 +1,4 @@
-package ru.spbau.mit.Cursors;
+package ru.spbau.mit.cursors;
 
 import ru.spbau.mit.memory.BufferManager;
 import ru.spbau.mit.memory.Page;

@@ -29,7 +29,6 @@ public class BufferManager {
         fileDataManager = new FileDataManager();
     }
 
-
     public Page getPage(Integer id, Table table) throws IOException {
         Page page = new PageImpl(null, id);
         if (pages.contains(page)) {
@@ -81,5 +80,9 @@ public class BufferManager {
 
     public void onQuit() throws IOException {
         fileDataManager.onQuit();
+    }
+
+    public Page getFirstFreePage() throws IOException {
+        return fileDataManager.getFirstFreePage();
     }
 }

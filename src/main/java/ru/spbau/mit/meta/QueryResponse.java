@@ -1,29 +1,42 @@
 package ru.spbau.mit.meta;
 
-import ru.spbau.mit.Cursors.Cursor;
+import ru.spbau.mit.cursors.Cursor;
 
 /**
  * Created by John on 10/13/2015.
  */
 public class QueryResponse {
 
-    private enum QueryStatus {
+    public enum QueryStatus {
         OK,
         Error
     }
 
     private QueryStatus status;
+
     /**
      * Count of row changed by query
      * Deleted for delete query, inserted for insert query etc.
      * For select equal 0
      */
     private int rowCount;
-
     /**
      * Special for select query
      */
     private Cursor cursor;
+
+    /**
+     * Special for Error status
+     */
+    private String errorMessageText;
+
+    public String getErrorMessageText() {
+        return errorMessageText;
+    }
+
+    public void setErrorMessageText(String errorMessageText) {
+        this.errorMessageText = errorMessageText;
+    }
 
     /**
      * For all queries besides select
@@ -43,5 +56,13 @@ public class QueryResponse {
     public QueryResponse(QueryStatus status, Cursor cursor) {
         this.status = status;
         this.cursor = cursor;
+    }
+
+    public Cursor getCursor() {
+        return cursor;
+    }
+
+    public QueryStatus getStatus() {
+        return status;
     }
 }

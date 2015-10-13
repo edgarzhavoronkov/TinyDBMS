@@ -28,9 +28,8 @@ final public class TableFactory {
     static public void addTable(Table table) throws IOException {
         tableMap.put(table.getName(), table);
 
-        String folder = PropertiesManager.getProperties().getProperty("dir_path");
-        String tablePath = folder + "\\" + table.getName() + ".json";
-
+        String folderName = PropertiesManager.getProperties().getProperty("dir_path");
+        String tablePath = folderName + "/" + table.getName() + ".json";
         try (Writer writer = new BufferedWriter(new OutputStreamWriter(
                 new FileOutputStream(tablePath), "utf-8"))) {
             writer.write(new Gson().toJson(table));
