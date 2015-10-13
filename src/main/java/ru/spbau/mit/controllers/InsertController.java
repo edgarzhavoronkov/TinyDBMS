@@ -1,8 +1,22 @@
 package ru.spbau.mit.controllers;
 
+import net.sf.jsqlparser.expression.DoubleValue;
+import net.sf.jsqlparser.expression.Expression;
+import net.sf.jsqlparser.expression.LongValue;
+import net.sf.jsqlparser.expression.StringValue;
+import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
 import net.sf.jsqlparser.statement.Statement;
+import net.sf.jsqlparser.statement.insert.Insert;
+import ru.spbau.mit.TableFactory;
 import ru.spbau.mit.memory.BufferManager;
+import ru.spbau.mit.memory.Page;
+import ru.spbau.mit.memory.Record;
+import ru.spbau.mit.meta.Column;
 import ru.spbau.mit.meta.QueryResponse;
+import ru.spbau.mit.meta.Table;
+import java.io.IOException;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by edgar on 25.09.15.
@@ -19,9 +33,69 @@ public class InsertController implements QueryController {
     }
 
     @Override
-    public QueryResponse process(Statement statement) {
+    public QueryResponse process(Statement statement) throws IOException {
+        Insert insert = (Insert) statement;
 
-        return null;
+        Table table = TableFactory.getTable(insert.getTable().getName());
+        Record record = getRecord(table, insert);
+
+        Page page = bufferManager.getPage(table.getFirstFreePageId(), table);
+        page.putRecord(record);
+
+        return new QueryResponse(QueryResponse.QueryStatus.OK, 1);
+    }
+
+    private Record getRecord(Table table, Insert insert) {
+        Map<String, Object> valueMap = getValueMap(insert);
+
+        if (valueMap.size() != table.getColumns().size()) {
+            throw new SQLParserException("The discrepancy between the number of columns.", insert);
+        }
+
+        String emptyColumns = table.getColumns()
+                .parallelStream()
+                .filter(column -> !valueMap.containsKey(column.getName()))
+                .map(Column::getName)
+                .sequential()
+                .collect(Collectors.joining(", "));
+
+        if (emptyColumns.length() > 0) {
+            throw new SQLParserException("For these columns, there are no values " + emptyColumns, insert);
+        }
+
+        Map<Column, Object> recordValue = table.getColumns()
+                .parallelStream()
+                .collect(Collectors.toMap(column -> column, valueMap::get));
+
+        return new Record(recordValue);
+    }
+
+    private Map<String, Object> getValueMap(Insert statement) {
+        List<Expression> expressions = ((ExpressionList) statement.getItemsList()).getExpressions();
+        List<net.sf.jsqlparser.schema.Column> columns = statement.getColumns();
+
+        Map<String, Object> valueMap = new HashMap<>(columns.size());
+        for (int i = 0; i < columns.size(); i++) {
+            valueMap.put(
+                    columns.get(i).getColumnName(),
+                    getValue(expressions.get(i))
+            );
+        }
+
+        return valueMap;
+    }
+
+    private Object getValue(Expression expression) {
+        if (expression instanceof LongValue) {
+            return (int)((LongValue) expression).getValue();
+        }
+        if(expression instanceof DoubleValue) {
+            return ((DoubleValue) expression).getValue();
+        }
+        if(expression instanceof StringValue) {
+            return ((StringValue) expression).getValue();
+        }
+        throw new SQLParserException("Unknown value type " + expression.getClass());
     }
 
 }

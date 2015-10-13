@@ -11,6 +11,11 @@ public class SQLParserException extends RuntimeException {
         brokenStatement = statement;
     }
 
+    public SQLParserException(String message) {
+        super(message);
+    }
+
+
     @Override
     public String toString(){
         return super.toString() + brokenStatement.toString();
