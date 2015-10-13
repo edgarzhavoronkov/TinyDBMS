@@ -2,6 +2,7 @@ package ru.spbau.mit.controllers;
 
 import net.sf.jsqlparser.statement.Statement;
 import ru.spbau.mit.memory.BufferManager;
+import ru.spbau.mit.meta.QueryResponse;
 
 
 /**
@@ -18,12 +19,9 @@ public class SelectController implements QueryController {
     }
 
     @Override
-    public void process(Statement statement) {
+    public QueryResponse process(Statement statement) {
 
+        return null;
     }
 
-    @Override
-    public void getReply() {
-
-    }
 }

@@ -7,6 +7,7 @@ import ru.spbau.mit.TableFactory;
 import ru.spbau.mit.memory.BufferManager;
 import ru.spbau.mit.meta.Column;
 import ru.spbau.mit.meta.DataType;
+import ru.spbau.mit.meta.QueryResponse;
 import ru.spbau.mit.meta.Table;
 
 import java.io.IOException;
@@ -30,7 +31,7 @@ public class CreateController implements QueryController {
 
     //TODO: think about exceptions
     @Override
-    public void process(Statement statement) throws IOException {
+    public QueryResponse process(Statement statement) throws IOException {
         CreateTable createTable = (CreateTable) statement;
 
         List<ColumnDefinition> columnDefinitions = createTable.getColumnDefinitions();
@@ -66,10 +67,7 @@ public class CreateController implements QueryController {
         //int pageID = bufferManager.createPage();
         //Table table = new Table(tableName, pageID, pageID, columns);
         //TableFactory.addTable(table);
+        return null;
     }
 
-    @Override
-    public void getReply() {
-
-    }
 }
