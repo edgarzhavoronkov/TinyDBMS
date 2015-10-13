@@ -51,4 +51,5 @@ public interface Page {
 
     int getNextPageId();
 
+    void setNextPageId(Integer nextPageId);
 }

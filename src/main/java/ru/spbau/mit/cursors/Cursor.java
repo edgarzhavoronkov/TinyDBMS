@@ -8,4 +8,5 @@ import java.util.Iterator;
  */
 public interface Cursor extends Iterator{
     public void initiateCursor(Integer pageId, Integer offset) throws IOException;
+    //TODO - later on, when we have not select * - pass list of columns to select to cursor
 }

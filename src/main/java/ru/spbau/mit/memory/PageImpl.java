@@ -35,6 +35,7 @@ public class PageImpl implements Page {
     private long operationId;
     private Short recordCount;
     private int id;
+    private Integer nextPageId;
 
     private boolean dirty;
     private int pinCount;
@@ -198,12 +199,21 @@ public class PageImpl implements Page {
 
     @Override
     public boolean hasNext(){
-        return getNextPageId() != id;
+        return nextPageId != -1;
     }
 
     //todo - fix
     @Override
     public int getNextPageId(){
-        return -1;
+        if (nextPageId == null) {
+            nextPageId = byteBuffer.getInt(Page.SIZE - NEXT_PAGE_OFFSET);
+        }
+        return nextPageId;
+    }
+
+    @Override
+    public void setNextPageId(Integer nextPageId) {
+        this.nextPageId = nextPageId;
+        byteBuffer.putInt(Page.SIZE - NEXT_PAGE_OFFSET, nextPageId);
     }
 }
