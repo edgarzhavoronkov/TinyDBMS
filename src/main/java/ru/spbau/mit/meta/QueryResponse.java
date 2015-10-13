@@ -1,6 +1,6 @@
 package ru.spbau.mit.meta;
 
-import ru.spbau.mit.Query.Cursor;
+import ru.spbau.mit.Cursors.Cursor;
 
 /**
  * Created by John on 10/13/2015.

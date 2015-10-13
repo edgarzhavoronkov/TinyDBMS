@@ -198,10 +198,10 @@ public class PageImpl implements Page {
 
     @Override
     public boolean hasNext(){
-        //todo - fix
-        return false;
+        return getNextPageId() != id;
     }
 
+    //todo - fix
     @Override
     public int getNextPageId(){
         return -1;
