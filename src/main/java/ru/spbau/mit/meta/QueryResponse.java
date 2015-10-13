@@ -7,7 +7,7 @@ import ru.spbau.mit.cursors.Cursor;
  */
 public class QueryResponse {
 
-    private enum QueryStatus {
+    public enum QueryStatus {
         OK,
         Error
     }
