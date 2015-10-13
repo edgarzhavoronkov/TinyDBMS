@@ -10,6 +10,7 @@ import ru.spbau.mit.meta.DataType;
 import ru.spbau.mit.meta.Table;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -31,9 +32,9 @@ public class CreateController implements QueryController {
     @Override
     public void process(Statement statement) throws IOException {
         CreateTable createTable = (CreateTable) statement;
-        String tableName = createTable.getTable().getName();
+
         List<ColumnDefinition> columnDefinitions = createTable.getColumnDefinitions();
-        List<Column> columns = new LinkedList<>();
+        List<Column> columns = new ArrayList<>();
         for (ColumnDefinition columnDefinition : columnDefinitions) {
             String columnName = columnDefinition.getColumnName();
             String columnDataType = columnDefinition.getColDataType().getDataType();
@@ -59,6 +60,8 @@ public class CreateController implements QueryController {
             Column column = new Column(columnName, dataType);
             columns.add(column);
         }
+        String tableName = createTable.getTable().getName();
+
         //TODO pageIDs?
         //int pageID = bufferManager.createPage();
         //Table table = new Table(tableName, pageID, pageID, columns);

@@ -1,12 +1,8 @@
 package ru.spbau.mit.memory;
 
-import ru.spbau.mit.DatabaseProperties;
 import ru.spbau.mit.meta.Table;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
 import java.util.TreeSet;
 
 /**
@@ -27,10 +23,10 @@ public class BufferManager {
     private TreeSet<Page> pinedPages;
 
 
-    public BufferManager(DatabaseProperties properties) throws IOException {
+    public BufferManager() throws IOException {
         this.pages = new TreeSet<>((o1, o2) -> (int) (o1.getLastOperationId() - o2.getLastOperationId()));
         pinedPages = new TreeSet<>();
-        fileDataManager = new FileDataManager(properties);
+        fileDataManager = new FileDataManager();
     }
 
 

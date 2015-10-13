@@ -20,8 +20,6 @@ import java.io.InputStreamReader;
  * Created by John on 9/12/2015.
  */
 public class ConsoleController {
-
-    static DatabaseProperties databaseProperties;
     static BufferManager bufferManager;
 
     static CreateController createController;
@@ -31,13 +29,7 @@ public class ConsoleController {
 
     public static void main(String[] args) throws IOException, JSQLParserException {
         System.out.println("Tiny Database command line tool\n");
-        databaseProperties = DatabaseProperties.setOptions(args);
-        bufferManager = new BufferManager(databaseProperties);
-
-        createController = CreateController.getInstance(bufferManager);
-        selectController = SelectController.getInstance(bufferManager);
-        insertController = InsertController.getInstance(bufferManager);
-        updateController = UpdateController.getInstance(bufferManager);
+        initialize();
 
         System.out.println("Type 2 times ENTER to execute any SQL command.");
 
@@ -67,6 +59,14 @@ public class ConsoleController {
             if (line.toLowerCase().trim().equals("quit")) break;
             command.append(line).append('\n');
         }
+    }
+
+    private static void initialize() throws IOException {
+        bufferManager = new BufferManager();
+        createController = CreateController.getInstance(bufferManager);
+        selectController = SelectController.getInstance(bufferManager);
+        insertController = InsertController.getInstance(bufferManager);
+        updateController = UpdateController.getInstance(bufferManager);
     }
 
 }

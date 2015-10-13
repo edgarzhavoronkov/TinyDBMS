@@ -16,17 +16,19 @@ public class CursorImpl implements Cursor {
     private Page currentPage = null;
     private final BufferManager bufferManager;
     private Record currentRecord;
+
     public CursorImpl(BufferManager bufferManager, Table table, Integer pageId, Integer offset) throws IOException {
         this(bufferManager, table);
         this.pageId = pageId;
         this.offset = offset;
         initiateCursor(pageId, offset);
-    };
+    }
 
     public CursorImpl(BufferManager bufferManager, Table table){
         this.table = table;
         this.bufferManager = bufferManager;
     }
+
     @Override
     public void initiateCursor(Integer pageId, Integer offset) throws IOException {
         this.pageId = pageId;
@@ -38,7 +40,6 @@ public class CursorImpl implements Cursor {
         this.currentPage = bufferManager.getPage(pageId, table);
         currentPage.pin();
         currentRecord = currentPage.getRecord(offset);
-
     }
 
     public Record value(){

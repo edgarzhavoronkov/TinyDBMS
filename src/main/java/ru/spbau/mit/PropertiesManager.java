@@ -11,7 +11,7 @@ final public class PropertiesManager {
     static Properties prop;
     static final String PROP_FILE_NAME = "config.properties";
 
-    static public Properties getProperties() {
+    public static Properties getProperties() {
         if (prop != null){
             return prop;
         }

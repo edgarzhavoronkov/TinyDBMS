@@ -9,9 +9,9 @@ public class Table {
 
     private String name;
 
-    private int firstPageId = -1;
+    private int firstPageId;
 
-    private int firstFreePageId = -1;
+    private int firstFreePageId;
 
     private List<Column> columns;
 
@@ -46,5 +46,21 @@ public class Table {
 
     public void setColumns(List<Column> columns) {
         this.columns = columns;
+    }
+
+    public int getFirstPageId() {
+        return firstPageId;
+    }
+
+    public void setFirstPageId(int firstPageId) {
+        this.firstPageId = firstPageId;
+    }
+
+    public int getFirstFreePageId() {
+        return firstFreePageId;
+    }
+
+    public void setFirstFreePageId(int firstFreePageId) {
+        this.firstFreePageId = firstFreePageId;
     }
 }
