@@ -224,7 +224,9 @@ public class PageImpl implements Page {
 
     @Override
     public void close() {
-        //todo add save bitSet
+        //save bitSet
+        byte[] bytes = getBitSet().toByteArray();
+        byteBuffer.put(bytes, Page.SIZE - BIT_MASK_OFFSET, bytes.length);
     }
 
 }

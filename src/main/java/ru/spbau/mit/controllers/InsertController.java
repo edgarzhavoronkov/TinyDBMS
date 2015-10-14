@@ -14,6 +14,7 @@ import ru.spbau.mit.memory.Record;
 import ru.spbau.mit.meta.Column;
 import ru.spbau.mit.meta.QueryResponse;
 import ru.spbau.mit.meta.Table;
+
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -44,6 +45,13 @@ public class InsertController implements QueryController {
             Page page = bufferManager.getPage(table.getFirstFreePageId(), table);
             page.putRecord(record);
 
+            if (!page.isFreeSpace()) {
+                Page firstFreePage = bufferManager.getFirstFreePage();
+                page.setNextPageId(firstFreePage.getId());
+                table.setFirstFreePageId(firstFreePage.getId());
+                firstFreePage.setNextPageId(-1);
+            }
+
             return new QueryResponse(QueryResponse.Status.OK, 1);
         } catch (SQLParserException e) {
             return new QueryResponse(QueryResponse.Status.Error, e);
@@ -71,8 +79,8 @@ public class InsertController implements QueryController {
         Map<Column, Object> recordValue = table.getColumns()
                 .parallelStream()
                 .collect(Collectors.toMap(
-                        column -> column,
-                        (java.util.function.Function<Column, Object>) (key) -> valueMap.get(key.getName()))
+                                column -> column,
+                                (java.util.function.Function<Column, Object>) (key) -> valueMap.get(key.getName()))
                 );
         return new Record(recordValue);
     }
@@ -94,12 +102,12 @@ public class InsertController implements QueryController {
 
     private Object getValue(Expression expression) throws SQLParserException {
         if (expression instanceof LongValue) {
-            return (int)((LongValue) expression).getValue();
+            return (int) ((LongValue) expression).getValue();
         }
-        if(expression instanceof DoubleValue) {
+        if (expression instanceof DoubleValue) {
             return ((DoubleValue) expression).getValue();
         }
-        if(expression instanceof StringValue) {
+        if (expression instanceof StringValue) {
             return ((StringValue) expression).getValue();
         }
         throw new SQLParserException("Unknown value type " + expression.getClass());

@@ -29,7 +29,7 @@ public class FileDataManager {
             isNewFile = true;
         }
         this.file = new RandomAccessFile(file, "rw");
-        if (isNewFile){
+        if (isNewFile) {
             initNewDataFile();
         } else {
             firstFreePage = Integer.parseInt(PropertiesManager.getProperties().getProperty("first_free_page"));
@@ -72,6 +72,7 @@ public class FileDataManager {
     public void savePage(Page page) throws IOException {
         assert (page.getId() < pageCount);
         if (!page.isDirty()) return;
+        page.close();
         takeToPageStart(page);
         file.write(page.getData(), 0, Page.SIZE);
     }
