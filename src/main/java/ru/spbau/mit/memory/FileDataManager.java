@@ -81,7 +81,7 @@ public class FileDataManager {
         pageCount += INIT_PAGE_COUNT;
     }
 
-    public void onQuit() throws IOException {
+    public void close() throws IOException {
         PropertiesManager.getProperties().setProperty("first_free_page", String.valueOf(firstFreePage));
         file.close();
     }

@@ -34,8 +34,8 @@ public enum DataType {
     VARCHAR (String.class, Constants.VARCHAR_MAXIMUM_SIZE) {
         @Override
         public void putInPage(Object o, Page page) {
-            page.getByteBuffer().put((byte) ((String)o).length());
-            page.getByteBuffer().put(((String)o).getBytes());
+            page.getByteBuffer().put((byte) (String.valueOf(o)).length());
+            page.getByteBuffer().put((String.valueOf(o)).getBytes());
         }
 
         @Override
@@ -44,14 +44,16 @@ public enum DataType {
             page.getByteBuffer().get(buffer);
             byte length = buffer[0];
             byte[] stringToReturn = new byte[length];
-            System.arraycopy(buffer, 1, stringToReturn, 1, length + 1 - 1);
-            ByteArrayInputStream stream = new ByteArrayInputStream(stringToReturn);
-            try (ObjectInputStream objectInputStream = new ObjectInputStream(stream)) {
-                return objectInputStream.readObject();
-            } catch (ClassNotFoundException | IOException e) {
-                e.printStackTrace();
-            }
-            return null;
+            System.arraycopy(buffer, 1, stringToReturn, 0, length);
+            return String.valueOf(stringToReturn);
+
+//            ByteArrayInputStream stream = new ByteArrayInputStream(stringToReturn);
+//            try (ObjectInputStream objectInputStream = new ObjectInputStream(stream)) {
+//                return objectInputStream.readObject();
+//            } catch (ClassNotFoundException | IOException e) {
+//                e.printStackTrace();
+//            }
+//            return null;
         }
     };
 

@@ -29,13 +29,12 @@ public class PageImpl implements Page {
 
     //Save 1 - for used positions; 0 - for free
     private BitSet bitSet;
+    private Short recordCount;
+    private Integer nextPageId;
 
     private ByteBuffer byteBuffer;
-
     private long operationId;
-    private Short recordCount;
     private int id;
-    private Integer nextPageId;
 
     private boolean dirty;
     private int pinCount;
@@ -51,7 +50,10 @@ public class PageImpl implements Page {
     private BitSet getBitSet() {
         if (bitSet == null) {
             byte[] bytes = new byte[BIT_MASK_OFFSET - RECORD_COUNT_OFFSET];
-            byteBuffer.get(bytes, Page.SIZE - BIT_MASK_OFFSET, BIT_MASK_OFFSET - RECORD_COUNT_OFFSET);
+            byteBuffer.position(Page.SIZE - BIT_MASK_OFFSET);
+            for (int i = 0; i < bytes.length; i++) {
+                bytes[i] = byteBuffer.get();
+            }
             bitSet = BitSet.valueOf(bytes);
         }
         return bitSet;
@@ -120,7 +122,7 @@ public class PageImpl implements Page {
             if (getBitSet().get(i)) {
                 cur++;
             }
-            if (cur == num) {
+            if (cur == (num + 1)) {
                 break;
             }
         }
@@ -216,4 +218,9 @@ public class PageImpl implements Page {
         this.nextPageId = nextPageId;
         byteBuffer.putInt(Page.SIZE - NEXT_PAGE_OFFSET, nextPageId);
     }
+
+    public void close() {
+        //todo add save bitSet
+    }
+
 }

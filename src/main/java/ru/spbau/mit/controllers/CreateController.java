@@ -13,7 +13,6 @@ import ru.spbau.mit.meta.Table;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -67,9 +66,9 @@ public class CreateController implements QueryController {
             Page firstFreePage = bufferManager.getFirstFreePage();
             Table table = new Table(tableName, firstFreePage.getId(), firstFreePage.getId(), columns);
             TableFactory.addTable(table);
-            return new QueryResponse(QueryResponse.QueryStatus.OK, null);
+            return new QueryResponse(QueryResponse.Status.OK, 0);
         } catch (IOException e) {
-            QueryResponse response = new QueryResponse(QueryResponse.QueryStatus.Error, null);
+            QueryResponse response = new QueryResponse(QueryResponse.Status.Error, 0);
             response.setErrorMessageText(e.getMessage());
             return response;
         }

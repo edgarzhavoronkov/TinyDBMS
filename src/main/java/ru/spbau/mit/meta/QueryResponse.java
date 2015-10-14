@@ -1,5 +1,6 @@
 package ru.spbau.mit.meta;
 
+import ru.spbau.mit.controllers.SQLParserException;
 import ru.spbau.mit.cursors.Cursor;
 
 /**
@@ -7,12 +8,12 @@ import ru.spbau.mit.cursors.Cursor;
  */
 public class QueryResponse {
 
-    public enum QueryStatus {
+    public enum Status {
         OK,
         Error
     }
 
-    private QueryStatus status;
+    private Status status;
 
     /**
      * Count of row changed by query
@@ -20,6 +21,15 @@ public class QueryResponse {
      * For select equal 0
      */
     private int rowCount;
+
+    public int getRowCount() {
+        return rowCount;
+    }
+
+    public void setRowCount(int rowCount) {
+        this.rowCount = rowCount;
+    }
+
     /**
      * Special for select query
      */
@@ -34,35 +44,51 @@ public class QueryResponse {
         return errorMessageText;
     }
 
+    private SQLParserException sqlParserException;
+
+    public SQLParserException getSqlParserException() {
+        return sqlParserException;
+    }
+
     public void setErrorMessageText(String errorMessageText) {
         this.errorMessageText = errorMessageText;
     }
 
     /**
-     * For all queries besides select
+     * For all queries besides select (must be OK)
      * @param status query status
      * @param rowCount changed count
      */
-    public QueryResponse(QueryStatus status, int rowCount) {
+    public QueryResponse(Status status, int rowCount) {
         this.rowCount = rowCount;
         this.status = status;
     }
 
     /**
      * For select query
-     * @param status query status
+     * @param status query status (must be OK)
      * @param cursor cursor of records
      */
-    public QueryResponse(QueryStatus status, Cursor cursor) {
+    public QueryResponse(Status status, Cursor cursor) {
         this.status = status;
         this.cursor = cursor;
+    }
+
+    /**
+     * Response for error result
+     * @param status must be Error
+     * @param sqlParserException error
+     */
+    public QueryResponse(Status status, SQLParserException sqlParserException) {
+        this.status = status;
+        this.sqlParserException = sqlParserException;
     }
 
     public Cursor getCursor() {
         return cursor;
     }
 
-    public QueryStatus getStatus() {
+    public Status getStatus() {
         return status;
     }
 }

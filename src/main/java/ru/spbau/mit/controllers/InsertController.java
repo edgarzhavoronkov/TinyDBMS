@@ -34,18 +34,23 @@ public class InsertController implements QueryController {
 
     @Override
     public QueryResponse process(Statement statement) throws IOException {
-        Insert insert = (Insert) statement;
 
-        Table table = TableFactory.getTable(insert.getTable().getName());
-        Record record = getRecord(table, insert);
+        try {
+            Insert insert = (Insert) statement;
 
-        Page page = bufferManager.getPage(table.getFirstFreePageId(), table);
-        page.putRecord(record);
+            Table table = TableFactory.getTable(insert.getTable().getName());
+            Record record = getRecord(table, insert);
 
-        return new QueryResponse(QueryResponse.QueryStatus.OK, 1);
+            Page page = bufferManager.getPage(table.getFirstFreePageId(), table);
+            page.putRecord(record);
+
+            return new QueryResponse(QueryResponse.Status.OK, 1);
+        } catch (SQLParserException e) {
+            return new QueryResponse(QueryResponse.Status.Error, e);
+        }
     }
 
-    private Record getRecord(Table table, Insert insert) {
+    private Record getRecord(Table table, Insert insert) throws SQLParserException {
         Map<String, Object> valueMap = getValueMap(insert);
 
         if (valueMap.size() != table.getColumns().size()) {
@@ -65,12 +70,14 @@ public class InsertController implements QueryController {
 
         Map<Column, Object> recordValue = table.getColumns()
                 .parallelStream()
-                .collect(Collectors.toMap(column -> column, valueMap::get));
-
+                .collect(Collectors.toMap(
+                        column -> column,
+                        (java.util.function.Function<Column, Object>) (key) -> valueMap.get(key.getName()))
+                );
         return new Record(recordValue);
     }
 
-    private Map<String, Object> getValueMap(Insert statement) {
+    private Map<String, Object> getValueMap(Insert statement) throws SQLParserException {
         List<Expression> expressions = ((ExpressionList) statement.getItemsList()).getExpressions();
         List<net.sf.jsqlparser.schema.Column> columns = statement.getColumns();
 
@@ -85,7 +92,7 @@ public class InsertController implements QueryController {
         return valueMap;
     }
 
-    private Object getValue(Expression expression) {
+    private Object getValue(Expression expression) throws SQLParserException {
         if (expression instanceof LongValue) {
             return (int)((LongValue) expression).getValue();
         }

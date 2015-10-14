@@ -32,18 +32,22 @@ public class SelectController implements QueryController {
 
     @Override
     public QueryResponse process(Statement statement) throws IOException {
-        if(!(statement instanceof Select)){
-            throw new SQLParserException("Not a select statement: ", statement);
-        }
-        PlainSelect plainSelect = (PlainSelect)(((Select) statement).getSelectBody());
-        String tableName = ((net.sf.jsqlparser.schema.Table)plainSelect.getFromItem()).getName();
-        Table table = TableFactory.getTable(tableName);
-        if(plainSelect.getSelectItems().get(0) instanceof AllColumns) {
-            Cursor cursor = new FullScanCursor(bufferManager, table, table.getFirstPageId(), 0);
-            return new QueryResponse(QueryResponse.QueryStatus.OK, cursor);
-        }
+        try {
+            if(!(statement instanceof Select)){
+                throw new SQLParserException("Not a select statement: ", statement);
+            }
+            PlainSelect plainSelect = (PlainSelect)(((Select) statement).getSelectBody());
+            String tableName = ((net.sf.jsqlparser.schema.Table)plainSelect.getFromItem()).getName();
+            Table table = TableFactory.getTable(tableName);
+            if(plainSelect.getSelectItems().get(0) instanceof AllColumns) {
+                Cursor cursor = new FullScanCursor(bufferManager, table, table.getFirstPageId(), 0);
+                return new QueryResponse(QueryResponse.Status.OK, cursor);
+            }
 
-        return null;
+            return null;
+        } catch (SQLParserException e) {
+            return new QueryResponse(QueryResponse.Status.Error, e);
+        }
     }
 
     public static void main(String[] args) throws JSQLParserException {

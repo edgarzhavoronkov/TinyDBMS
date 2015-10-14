@@ -25,12 +25,12 @@ public class BufferManager {
 
     public BufferManager() throws IOException {
         this.pages = new TreeSet<>((o1, o2) -> (int) (o1.getLastOperationId() - o2.getLastOperationId()));
-        pinedPages = new TreeSet<>();
+        pinedPages = new TreeSet<>(((o1, o2) -> o1.getId() - o2.getId()));
         fileDataManager = new FileDataManager();
     }
 
     public Page getPage(Integer id, Table table) throws IOException {
-        Page page = new PageImpl(null, id);
+        Page page = new PageImpl(new byte[0], id);
         if (pages.contains(page)) {
             page = pages.floor(page);
             removePageFromBuffer(page);
@@ -78,8 +78,14 @@ public class BufferManager {
         addPageToBuffer(page);
     }
 
-    public void onQuit() throws IOException {
-        fileDataManager.onQuit();
+    public void close() throws IOException {
+        for (Page page : pages) {
+            fileDataManager.savePage(page);
+        }
+        for (Page page : pinedPages) {
+            fileDataManager.savePage(page);
+        }
+        fileDataManager.close();
     }
 
     public Page getFirstFreePage() throws IOException {

@@ -43,7 +43,7 @@ public class ConsoleController {
 
                 if (statement instanceof CreateTable) {
                     QueryResponse response = createController.process(statement);
-                    if (response.getStatus() == QueryResponse.QueryStatus.OK) {
+                    if (response.getStatus() == QueryResponse.Status.OK) {
                         System.out.println("OK");
                     } else {
                         System.out.println("ERROR" + response.getErrorMessageText());
@@ -66,12 +66,11 @@ public class ConsoleController {
             command.append(line).append('\n');
         }
 
-
         onQuit();
     }
 
     private static void onQuit() throws IOException {
-        bufferManager.onQuit();
+        bufferManager.close();
 
         PropertiesManager.onQuit();
     }

@@ -18,8 +18,8 @@ public class FileDataManagerTest {
 //        for (int i = 0; i < 10; i++) {
 //            fileDataManager.getFirstFreePage();
 //        }
-//        fileDataManager.onQuit();
-//        PropertiesManager.onQuit();
+//        fileDataManager.close();
+//        PropertiesManager.close();
 //    }
 
 }
