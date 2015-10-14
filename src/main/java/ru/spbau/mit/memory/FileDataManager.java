@@ -33,10 +33,10 @@ public class FileDataManager {
             initNewDataFile();
         } else {
             firstFreePage = Integer.parseInt(PropertiesManager.getProperties().getProperty("first_free_page"));
-            assert (pageCount > firstFreePage);
         }
 
         pageCount = this.file.length() / Page.SIZE;
+        assert (pageCount > firstFreePage);
     }
 
     private void initNewDataFile() throws IOException {

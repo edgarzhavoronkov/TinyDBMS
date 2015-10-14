@@ -22,7 +22,7 @@ public interface Page {
 
     ByteBuffer getByteBuffer();
 
-    //todo better table inference implementation
+    //todo (low) better table inference implementation
     void setTable(Table table);
 
     byte[] getData();
@@ -52,4 +52,8 @@ public interface Page {
     int getNextPageId();
 
     void setNextPageId(Integer nextPageId);
+
+    boolean isFreeSpace();
+
+    void close();
 }

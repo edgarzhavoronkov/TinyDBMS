@@ -3,6 +3,8 @@ package ru.spbau.mit.memory;
 import ru.spbau.mit.meta.Table;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.TreeSet;
 
 /**
@@ -18,25 +20,37 @@ public class BufferManager {
 
     private FileDataManager fileDataManager;
 
+    /**
+     * Store all buffered pages
+     */
     private TreeSet<Page> pages;
 
+    /**
+     * Store all pinned pages
+     */
     private TreeSet<Page> pinedPages;
 
+    /**
+     * Store map page id - page (for fast find in buf)
+     */
+    private Map<Integer, Page> pageMap;
 
     public BufferManager() throws IOException {
         this.pages = new TreeSet<>((o1, o2) -> (int) (o1.getLastOperationId() - o2.getLastOperationId()));
-        pinedPages = new TreeSet<>(((o1, o2) -> o1.getId() - o2.getId()));
+        pinedPages = new TreeSet<>((o1, o2) -> o1.getId() - o2.getId());
+        pageMap = new HashMap<>();
         fileDataManager = new FileDataManager();
     }
 
     public Page getPage(Integer id, Table table) throws IOException {
-        Page page = new PageImpl(new byte[0], id);
-        if (pages.contains(page)) {
-            page = pages.floor(page);
+        if (pageMap.containsKey(id)) {
+            Page page = pageMap.get(id);
             removePageFromBuffer(page);
             addPageToBuffer(page);
             return page;
         }
+        //todo (low) remove useless byte[4096]
+        Page page = new PageImpl(new byte[Page.SIZE], id);
         if (pinedPages.contains(page)) {
             return pinedPages.floor(page);
         }
@@ -49,6 +63,7 @@ public class BufferManager {
     private void removePageFromBuffer(Page page) {
         if (pages.contains(page)) {
             pages.remove(page);
+            pageMap.remove(page.getId());
         }
     }
 
@@ -57,6 +72,7 @@ public class BufferManager {
         if (CAPACITY == (pages.size() + pinedPages.size())) {
             fileDataManager.savePage(pages.pollFirst());
         }
+        pageMap.put(page.getId(), page);
         pages.add(page);
     }
 
@@ -69,11 +85,10 @@ public class BufferManager {
     }
 
     public void unPinned(Page page) throws Exception {
-        assert (!page.isPin());
+        assert (page.isPin());
         page.unpin();
-        if (!page.isPin() && !pinedPages.remove(page)) {
-            //todo add Exception
-            throw new Exception();
+        if (page.isPin() && !pinedPages.remove(page)) {
+            throw new RuntimeException("Pinned exception ");
         }
         addPageToBuffer(page);
     }

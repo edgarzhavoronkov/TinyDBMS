@@ -16,7 +16,6 @@ import java.util.Map;
  * Created by John on 9/12/2015.
  */
 public class PageImpl implements Page {
-    //todo must use next page offset
     private final int NEXT_PAGE_OFFSET = 4;
     private final int RECORD_COUNT_OFFSET = 6;
     private final int BIT_MASK_OFFSET = 134;
@@ -153,7 +152,7 @@ public class PageImpl implements Page {
 
     @Override
     public void putRecord(Record record) {
-        assert (getRecordCount() * (table.getRecordSize() + 1) > (Page.SIZE - BIT_MASK_OFFSET));
+        assert (isFreeSpace());
 
         int firstFreePos = getFirstFreePos();
         byteBuffer.position(firstFreePos);
@@ -191,7 +190,6 @@ public class PageImpl implements Page {
         PageImpl page = (PageImpl) o;
 
         return id == page.id;
-
     }
 
     @Override
@@ -204,7 +202,7 @@ public class PageImpl implements Page {
         return nextPageId != -1;
     }
 
-    //todo - fix
+    //todo - fix (next page)
     @Override
     public int getNextPageId(){
         if (nextPageId == null) {
@@ -219,6 +217,12 @@ public class PageImpl implements Page {
         byteBuffer.putInt(Page.SIZE - NEXT_PAGE_OFFSET, nextPageId);
     }
 
+    @Override
+    public boolean isFreeSpace() {
+        return getRecordCount() * (table.getRecordSize() + 1) < (Page.SIZE - BIT_MASK_OFFSET);
+    }
+
+    @Override
     public void close() {
         //todo add save bitSet
     }

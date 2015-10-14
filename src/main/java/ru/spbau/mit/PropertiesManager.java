@@ -28,7 +28,7 @@ final public class PropertiesManager {
         }
     }
 
-    public static void onQuit() throws IOException {
+    public static void close() throws IOException {
         if (prop != null) {
             try (FileOutputStream outputStream = new FileOutputStream(PROP_FILE_NAME)) {
                 prop.store(outputStream, "Changed in " + System.currentTimeMillis());

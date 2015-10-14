@@ -66,13 +66,14 @@ public class ConsoleController {
             command.append(line).append('\n');
         }
 
-        onQuit();
+        close();
     }
 
-    private static void onQuit() throws IOException {
+    private static void close() throws IOException {
         bufferManager.close();
+        TableFactory.close();
 
-        PropertiesManager.onQuit();
+        PropertiesManager.close();
     }
 
     private static void initialize() throws IOException {
