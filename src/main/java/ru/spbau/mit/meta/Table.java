@@ -1,6 +1,8 @@
 package ru.spbau.mit.meta;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by John on 9/12/2015.

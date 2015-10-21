@@ -8,9 +8,19 @@ public class Column {
 
     private final DataType dataType;
 
+    private Integer size;
+
     public Column(String name, DataType dataType) {
         this.name = name;
         this.dataType = dataType;
+    }
+
+    public Integer getSize() {
+        return size;
+    }
+
+    public void setSize(Integer size) {
+        this.size = size;
     }
 
     public String getName() {

@@ -8,6 +8,7 @@ import net.sf.jsqlparser.statement.insert.Insert;
 import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.statement.update.Update;
 import ru.spbau.mit.controllers.*;
+import ru.spbau.mit.cursors.Cursor;
 import ru.spbau.mit.memory.BufferManager;
 import ru.spbau.mit.meta.QueryResponse;
 
@@ -40,7 +41,6 @@ public class ConsoleController {
             String line = input.readLine();
             if(line.length() == 0 && command.length() > 0){
                 Statement statement = CCJSqlParserUtil.parse(command.toString());
-
                 if (statement instanceof CreateTable) {
                     QueryResponse response = createController.process(statement);
                     if (response.getStatus() == QueryResponse.Status.OK) {
@@ -49,11 +49,21 @@ public class ConsoleController {
                         System.out.println("ERROR" + response.getErrorMessageText());
                     }
                 } else if (statement instanceof Insert) {
-                    insertController.process(statement);
+                    QueryResponse response = insertController.process(statement);
+                    if (response.getStatus() == QueryResponse.Status.OK) {
+                        System.out.println("OK, rows affected");
+                    } else {
+                        System.out.println("ERROR" + response.getErrorMessageText());
+                    }
                 } else if (statement instanceof Update) {
                     updateController.process(statement);
                 } else if (statement instanceof Select) {
-                    selectController.process(statement);
+                    QueryResponse response = selectController.process(statement);
+                    if (response.getStatus() == QueryResponse.Status.OK) {
+                        Cursor cursor = response.getCursor();
+                    } else {
+                        System.out.println("ERROR" + response.getErrorMessageText());
+                    }
                 } else {
                     System.out.println("Unknown command! Please try again");
                 }

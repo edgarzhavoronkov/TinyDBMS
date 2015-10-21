@@ -45,15 +45,7 @@ public enum DataType {
             byte length = buffer[0];
             byte[] stringToReturn = new byte[length];
             System.arraycopy(buffer, 1, stringToReturn, 0, length);
-            return String.valueOf(stringToReturn);
-
-//            ByteArrayInputStream stream = new ByteArrayInputStream(stringToReturn);
-//            try (ObjectInputStream objectInputStream = new ObjectInputStream(stream)) {
-//                return objectInputStream.readObject();
-//            } catch (ClassNotFoundException | IOException e) {
-//                e.printStackTrace();
-//            }
-//            return null;
+            return new String(stringToReturn);
         }
     };
 

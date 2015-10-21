@@ -39,18 +39,22 @@ public class CreateController implements QueryController {
             String columnName = columnDefinition.getColumnName();
             String columnDataType = columnDefinition.getColDataType().getDataType();
             DataType dataType;
+            Integer size;
             switch (columnDataType) {
                 case "INT" : {
                     dataType = DataType.INTEGER;
+                    size = DataType.INTEGER.getSize();
                     break;
                 }
                 case "DOUBLE" : {
                     dataType = DataType.DOUBLE;
+                    size = DataType.DOUBLE.getSize();
                     break;
                 }
                 case "VARCHAR" : {
                     //TODO: size?
                     dataType = DataType.VARCHAR;
+                    size = Integer.parseInt(columnDefinition.getColDataType().getArgumentsStringList().get(0));
                     break;
                 }
                 default : {
@@ -58,6 +62,7 @@ public class CreateController implements QueryController {
                 }
             }
             Column column = new Column(columnName, dataType);
+            column.setSize(size);
             columns.add(column);
         }
         String tableName = createTable.getTable().getName();
