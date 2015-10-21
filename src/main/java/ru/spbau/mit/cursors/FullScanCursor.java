@@ -21,6 +21,16 @@ public class FullScanCursor implements Cursor {
     private final List<Column> fields;
     private Record currentRecord;
 
+    @Override
+    public Record getCurrentRecord() {
+        return currentRecord;
+    }
+
+    @Override
+    public Table getTable() {
+        return table;
+    }
+
     public FullScanCursor(BufferManager bufferManager, Table table, Integer pageId, Integer offset) throws IOException {
         this(bufferManager, table);
         this.pageId = pageId;
@@ -44,7 +54,7 @@ public class FullScanCursor implements Cursor {
     private void start() throws IOException {
         this.currentPage = bufferManager.getPage(pageId, table);
         currentPage.pin();
-        currentRecord = currentPage.getRecord(offset);
+//        currentRecord = currentPage.getRecord(offset);
     }
 
     public Record value(){
@@ -53,14 +63,13 @@ public class FullScanCursor implements Cursor {
 
     @Override
     public boolean hasNext() {
-        return ((offset + 1) < currentPage.getRecordCount() || currentPage.hasNext());
+        return (offset < currentPage.getRecordCount() || currentPage.hasNext());
     }
 
     @Override
     public Object next() {
-        if((offset + 1) < currentPage.getRecordCount()){
-            offset ++;
-        }else{
+        if (!hasNext()) return null;
+        if(offset >= currentPage.getRecordCount()){
             currentPage.unpin();
             try {
                 currentPage = bufferManager.getPage(currentPage.getNextPageId(), table);
@@ -72,8 +81,10 @@ public class FullScanCursor implements Cursor {
         }
 
         currentRecord = currentPage.getRecord(offset);
+        offset ++;
         return currentRecord;
     }
+
 
     @Override
     public void remove() {

@@ -69,7 +69,9 @@ public class CreateController implements QueryController {
         //TODO: is there a better way to do this?!
         try {
             Page firstFreePage = bufferManager.getFirstFreePage();
+            firstFreePage.setNextPageId(-1);
             Table table = new Table(tableName, firstFreePage.getId(), firstFreePage.getId(), columns);
+            firstFreePage.setTable(table);
             TableFactory.addTable(table);
             return new QueryResponse(QueryResponse.Status.OK, 0);
         } catch (IOException e) {

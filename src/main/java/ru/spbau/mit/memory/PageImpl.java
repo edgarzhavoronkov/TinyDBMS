@@ -46,6 +46,8 @@ public class PageImpl implements Page {
         this.id = id;
     }
 
+
+
     private BitSet getBitSet() {
         if (bitSet == null) {
             byte[] bytes = new byte[BIT_MASK_OFFSET - RECORD_COUNT_OFFSET];
@@ -141,12 +143,13 @@ public class PageImpl implements Page {
 
     private int getFirstFreePos() {
         BitSet bitSet = getBitSet();
-        for (int i = 0; i < (Page.SIZE - BIT_MASK_OFFSET) / table.getRecordSize(); i++) {
-            if (!bitSet.get(i)) {
-                return i;
-            }
-        }
-        return -1;
+        return bitSet.nextClearBit(0);
+//        for (int i = 0; i < (Page.SIZE - BIT_MASK_OFFSET) / table.getRecordSize(); i++) {
+//            if (!bitSet.get(i)) {
+//                return i;
+//            }
+//        }
+//        return -1;
 
     }
 
@@ -155,7 +158,7 @@ public class PageImpl implements Page {
         assert (isFreeSpace());
 
         int firstFreePos = getFirstFreePos();
-        byteBuffer.position(firstFreePos);
+        byteBuffer.position(firstFreePos * table.getRecordSize());
 
         Map<Column, Object> values = record.getValues();
         for (Column column : table.getColumns()) {
@@ -199,7 +202,7 @@ public class PageImpl implements Page {
 
     @Override
     public boolean hasNext(){
-        return nextPageId != -1;
+        return getNextPageId() != -1;
     }
 
     //todo - fix (next page)
@@ -226,7 +229,8 @@ public class PageImpl implements Page {
     public void close() {
         //save bitSet
         byte[] bytes = getBitSet().toByteArray();
-        byteBuffer.put(bytes, Page.SIZE - BIT_MASK_OFFSET, bytes.length);
+        byteBuffer.position(Page.SIZE - BIT_MASK_OFFSET);
+        byteBuffer.put(bytes, 0, bytes.length);
     }
 
 }

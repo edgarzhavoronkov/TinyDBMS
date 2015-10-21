@@ -104,6 +104,8 @@ public class BufferManager {
     }
 
     public Page getFirstFreePage() throws IOException {
-        return fileDataManager.getFirstFreePage();
+        Page page = fileDataManager.getFirstFreePage();
+        addPageToBuffer(page);
+        return page;
     }
 }

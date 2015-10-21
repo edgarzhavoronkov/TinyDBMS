@@ -9,6 +9,8 @@ Tiny DBMS we are writing at database course in SPbAU
 Cur todo:
 Error ru.spbau.mit.memory.PageImpl // remove bitset
 Error ru.spbau.mit.TableFactory //Add processing situation "no table"
+Error ru.spbau.mit.InsertController //Add validating size
+
 
 Error ru.spbau.mit.memory.PageImpl //Add save bitSet (complited?)
 Error ru.spbau.mit.memory.PageImpl // must use next page offset (complited?)

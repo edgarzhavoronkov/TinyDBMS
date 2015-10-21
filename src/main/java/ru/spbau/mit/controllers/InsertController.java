@@ -47,6 +47,7 @@ public class InsertController implements QueryController {
 
             if (!page.isFreeSpace()) {
                 Page firstFreePage = bufferManager.getFirstFreePage();
+                firstFreePage.setTable(table);
                 page.setNextPageId(firstFreePage.getId());
                 table.setFirstFreePageId(firstFreePage.getId());
                 firstFreePage.setNextPageId(-1);
