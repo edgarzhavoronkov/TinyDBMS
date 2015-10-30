@@ -20,6 +20,14 @@ public class ConsoleController {
         System.out.println("Tiny Database command line tool\n");
         initialize();
 
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            try {
+                close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }));
+
         System.out.println("Type 2 times ENTER to execute any SQL command.");
 
         StringBuilder command = new StringBuilder();
@@ -31,13 +39,13 @@ public class ConsoleController {
             String line = input.readLine();
             if(line.length() == 0 && command.length() > 0){
                 queryHandler(command.toString());
-                //System.out.println(statement);
                 command = new StringBuilder();
             }
 
             if (line.toLowerCase().trim().equals("quit")) break;
             command.append(line).append('\n');
         }
+
         close();
     }
 

@@ -53,16 +53,29 @@ public class QueryHandler {
     private static void selectHandler(QueryResponse response) {
         if (response.getStatus() == QueryResponse.Status.OK) {
             Cursor cursor = response.getCursor();
-            Table table = cursor.getTable();
-            for (Column column : table.getColumns()) {
-                System.out.print(column.getName() + " ");
-            }
-            System.out.println();
+            boolean isFirst = true;
             while (cursor.next() != null) {
                 Record currentRecord = cursor.getCurrentRecord();
+                if (isFirst) {
+                    for (Column column : currentRecord.getValues().keySet()) {
+                        System.out.printf("%" + column.getSize() + "s |", column.getName());
+                    }
+                    System.out.println();
+                    isFirst = false;
+                }
                 Map<Column, Object> values = currentRecord.getValues();
                 for (Column column : values.keySet()) {
-                    System.out.print(values.get(column) + " ");
+                    switch (column.getDataType()) {
+                        case INTEGER:
+                            System.out.printf("%" + column.getSize() + "d |", values.get(column));
+                            break;
+                        case DOUBLE:
+                            System.out.printf("%8.2f |", ((double) values.get(column)));
+                            break;
+                        case VARCHAR:
+                            System.out.printf("%" + column.getSize() + "s |", values.get(column));
+                            break;
+                    }
                 }
                 System.out.println();
             }
