@@ -12,11 +12,14 @@ import ru.spbau.mit.memory.BufferManager;
 import ru.spbau.mit.memory.Page;
 import ru.spbau.mit.memory.Record;
 import ru.spbau.mit.meta.Column;
+import ru.spbau.mit.meta.DataType;
 import ru.spbau.mit.meta.QueryResponse;
 import ru.spbau.mit.meta.Table;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 /**
@@ -55,7 +58,9 @@ public class InsertController implements QueryController {
 
             return new QueryResponse(QueryResponse.Status.OK, 1);
         } catch (SQLParserException e) {
-            return new QueryResponse(QueryResponse.Status.Error, e);
+            QueryResponse response = new QueryResponse(QueryResponse.Status.Error, e);
+            response.setErrorMessageText(e.getMessage());
+            return response;
         }
     }
 
@@ -74,15 +79,28 @@ public class InsertController implements QueryController {
                 .collect(Collectors.joining(", "));
 
         if (emptyColumns.length() > 0) {
-            throw new SQLParserException("For these columns, there are no values " + emptyColumns, insert);
+            throw new SQLParserException("For this columns, there are no values " + emptyColumns, insert);
         }
 
         Map<Column, Object> recordValue = table.getColumns()
                 .parallelStream()
                 .collect(Collectors.toMap(
                                 column -> column,
-                                (java.util.function.Function<Column, Object>) (key) -> valueMap.get(key.getName()))
+                                (Function<Column, Object>) (key) -> valueMap.get(key.getName()))
                 );
+
+        String wrongSizeColumns = recordValue.keySet()
+                .parallelStream()
+                .filter(column -> column.getDataType() == DataType.VARCHAR
+                        && column.getSize() < recordValue.get(column).toString().length())
+                .map(Column::getName)
+                .sequential()
+                .collect(Collectors.joining(", "));
+
+        if (wrongSizeColumns.length() > 0) {
+            throw new SQLParserException("For this columns, wrong size " + wrongSizeColumns, insert);
+        }
+
         return new Record(recordValue);
     }
 
