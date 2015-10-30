@@ -50,7 +50,7 @@ public class SelectController implements QueryController {
                     String columnName = ((Column)(((EqualsTo)plainSelect.getWhere()).getLeftExpression())).getColumnName();
                     Object value;
                     if (((EqualsTo)plainSelect.getWhere()).getRightExpression() instanceof LongValue) {
-                        value = ((LongValue)((EqualsTo)plainSelect.getWhere()).getRightExpression()).getValue();
+                        value = new Long(((LongValue)((EqualsTo)plainSelect.getWhere()).getRightExpression()).getValue()).intValue();
                     } else if (((EqualsTo)plainSelect.getWhere()).getRightExpression() instanceof DoubleValue) {
                         value = ((DoubleValue)((EqualsTo)plainSelect.getWhere()).getRightExpression()).getValue();
                     } else if (((EqualsTo)plainSelect.getWhere()).getRightExpression() instanceof StringValue) {

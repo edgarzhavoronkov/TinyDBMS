@@ -91,6 +91,17 @@ public class WhereCursor implements Cursor {
         currentRecord = currentPage.getRecord(offset);
         offset++;
         while (!currentRecord.getValues().get(columnKey).equals(value)) {
+            if (!hasNext()) return null;
+            if (offset >= currentPage.getRecordCount()) {
+                currentPage.unpin();
+                try {
+                    currentPage = bufferManager.getPage(currentPage.getNextPageId(), table);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                currentPage.pin();
+                offset = 0;
+            }
             currentRecord = currentPage.getRecord(offset);
             offset++;
         }
