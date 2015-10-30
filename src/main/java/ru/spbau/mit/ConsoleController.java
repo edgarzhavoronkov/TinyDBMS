@@ -32,9 +32,7 @@ public class ConsoleController {
 
         StringBuilder command = new StringBuilder();
         BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            System.out.println("test");
-        }));
+
         while (true) {
             String line = input.readLine();
             if(line.length() == 0 && command.length() > 0){

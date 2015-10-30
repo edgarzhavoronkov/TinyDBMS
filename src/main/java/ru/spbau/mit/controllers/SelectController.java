@@ -1,7 +1,12 @@
 package ru.spbau.mit.controllers;
 
 import net.sf.jsqlparser.JSQLParserException;
+import net.sf.jsqlparser.expression.DoubleValue;
+import net.sf.jsqlparser.expression.LongValue;
+import net.sf.jsqlparser.expression.StringValue;
+import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
 import net.sf.jsqlparser.parser.CCJSqlParserManager;
+import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.select.AllColumns;
 import net.sf.jsqlparser.statement.select.PlainSelect;
@@ -9,6 +14,7 @@ import net.sf.jsqlparser.statement.select.Select;
 import ru.spbau.mit.TableFactory;
 import ru.spbau.mit.cursors.Cursor;
 import ru.spbau.mit.cursors.FullScanCursor;
+import ru.spbau.mit.cursors.WhereCursor;
 import ru.spbau.mit.memory.BufferManager;
 import ru.spbau.mit.meta.QueryResponse;
 import ru.spbau.mit.meta.Table;
@@ -40,6 +46,21 @@ public class SelectController implements QueryController {
             String tableName = ((net.sf.jsqlparser.schema.Table)plainSelect.getFromItem()).getName();
             Table table = TableFactory.getTable(tableName);
             if(plainSelect.getSelectItems().get(0) instanceof AllColumns) {
+                if (plainSelect.getWhere() != null) {
+                    String columnName = ((Column)(((EqualsTo)plainSelect.getWhere()).getLeftExpression())).getColumnName();
+                    Object value;
+                    if (((EqualsTo)plainSelect.getWhere()).getRightExpression() instanceof LongValue) {
+                        value = ((LongValue)((EqualsTo)plainSelect.getWhere()).getRightExpression()).getValue();
+                    } else if (((EqualsTo)plainSelect.getWhere()).getRightExpression() instanceof DoubleValue) {
+                        value = ((DoubleValue)((EqualsTo)plainSelect.getWhere()).getRightExpression()).getValue();
+                    } else if (((EqualsTo)plainSelect.getWhere()).getRightExpression() instanceof StringValue) {
+                        value = ((StringValue)((EqualsTo)plainSelect.getWhere()).getRightExpression()).getValue();
+                    } else {
+                        throw new SQLParserException("Data type does not match column data type!");
+                    }
+                    Cursor cursor = new WhereCursor(bufferManager, table, table.getFirstPageId(), 0, columnName, value);
+                    return new QueryResponse(QueryResponse.Status.OK, cursor);
+                }
                 Cursor cursor = new FullScanCursor(bufferManager, table, table.getFirstPageId(), 0);
                 return new QueryResponse(QueryResponse.Status.OK, cursor);
             }
