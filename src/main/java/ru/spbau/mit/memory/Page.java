@@ -25,6 +25,8 @@ public interface Page {
     //todo (low) better table inference implementation
     void setTable(Table table);
 
+    void removeRecord(Integer num);
+
     byte[] getData();
 
     int getId();

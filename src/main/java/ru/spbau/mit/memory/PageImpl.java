@@ -116,6 +116,23 @@ public class PageImpl implements Page {
     @Override //TODO - very ineffective realization - cast data to array at initialize, better to use 134byte in
     public Record getRecord(Integer num) {
         assert (num < getRecordCount());
+        int recordNum = getAbsRecordNum(num);
+
+        Map<Column, Object> values = new HashMap<>(table.getColumns().size());
+        byteBuffer.position(table.getRecordSize() * recordNum);
+        for (Column column : table.getColumns()) {
+            values.put(column, column.getDataType().getFromPage(this));
+        }
+        return new Record(values);
+    }
+
+    /**
+     * return absolute number of record
+     * in bitset can be free record
+     * @param num of busy record
+     * @return absolute number of record
+     */
+    private int getAbsRecordNum(int num) {
         int cur = 0;
         int i;
 
@@ -127,13 +144,17 @@ public class PageImpl implements Page {
                 break;
             }
         }
+        return i;
+    }
 
-        Map<Column, Object> values = new HashMap<>(table.getColumns().size());
-        byteBuffer.position(table.getRecordSize() * i);
-        for (Column column : table.getColumns()) {
-            values.put(column, column.getDataType().getFromPage(this));
-        }
-        return new Record(values);
+    @Override
+    public void removeRecord(Integer num) {
+        assert (num < getRecordCount());
+
+        int recordNum = getAbsRecordNum(num);
+
+        makeDirty();
+        getBitSet().set(recordNum, false);
     }
 
     @Override
@@ -144,13 +165,6 @@ public class PageImpl implements Page {
     private int getFirstFreePos() {
         BitSet bitSet = getBitSet();
         return bitSet.nextClearBit(0);
-//        for (int i = 0; i < (Page.SIZE - BIT_MASK_OFFSET) / table.getRecordSize(); i++) {
-//            if (!bitSet.get(i)) {
-//                return i;
-//            }
-//        }
-//        return -1;
-
     }
 
     @Override
