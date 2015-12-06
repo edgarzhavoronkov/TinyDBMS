@@ -6,5 +6,4 @@ package ru.spbau.mit.cursors.Index.BTree;
 public class LeafEntry {
     int pageId;
     int offset;
-
 }

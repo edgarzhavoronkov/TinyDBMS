@@ -177,8 +177,7 @@ abstract class Node {
     protected abstract Node FuseChildren(Node leftChild, Node rightChild);
 
     protected abstract void FuseWithSibling(int separationKey, Node rightNode);
-
-    protected abstract int getKeyFromSibling(int separationKey, Node sibling, int donationIndex);
+    protected abstract Integer getKeyFromSibling(int separationKey, Node sibling, int donationIndex);
 
     @Nullable
     public Node resolveUnderflow() {

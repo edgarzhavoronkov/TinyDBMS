@@ -1,7 +1,5 @@
 package ru.spbau.mit.cursors.Index.BTree;
 
-import java.util.Enumeration;
-
 /**
  * Created by gellm_000 on 06.12.2015.
  */
@@ -13,8 +11,8 @@ public class LeafNode extends Node{
 
     public LeafNode(){
         //TODO check if filled with NULL
-        keys = new Integer[LEAFCAPACITY];
-        entries = new LeafEntry[LEAFCAPACITY];
+        keys = new Integer[LEAFCAPACITY + 1];
+        entries = new LeafEntry[LEAFCAPACITY + 1];
     }
 
     public LeafEntry getEntryAt(int index){
@@ -95,7 +93,7 @@ public class LeafNode extends Node{
     }
 
     @Override
-    protected int getKeyFromSibling(int separationKey, Node sibling, int donationIndex) {
+    protected Integer getKeyFromSibling(int separationKey, Node sibling, int donationIndex) {
         LeafNode Leaf = (LeafNode) sibling;
         insertKey(Leaf.getKeyAt(donationIndex), Leaf.getEntryAt(donationIndex));
         Leaf.deleteAt(donationIndex);
@@ -116,7 +114,7 @@ public class LeafNode extends Node{
     }
 
     private void insertAt(int index, int key, LeafEntry entry){
-        for (int i = getSize(); i > index; i++) {
+        for (int i = getSize(); i > index; i--) {
             setKeyAt(i, getKeyAt(i-1));
             setEntryAt(i, getEntryAt(i-1));
         }
