@@ -1,5 +1,5 @@
 package ru.spbau.mit.meta;
-import ru.spbau.mit.memory.RecordPage;
+import ru.spbau.mit.memory.page.RecordPage;
 
 /**
  * Created by John on 9/12/2015.

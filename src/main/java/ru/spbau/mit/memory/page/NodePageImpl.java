@@ -1,4 +1,4 @@
-package ru.spbau.mit.memory;
+package ru.spbau.mit.memory.page;
 
 
 /**
@@ -7,19 +7,19 @@ package ru.spbau.mit.memory;
 public class NodePageImpl extends BasePageImpl implements NodePage {
     private static final int NULL_PAGE_ID = -1;
 
-    private static final int IS_LEAF_OFFSET = 0;
-    private static final int SIZE_OFFSET = 1;
-    private static final int LEFT_NODE_OFFSET = 5;
-    private static final int RIGHT_NODE_OFFSET = 9;
-    private static final int PARENT_NODE_OFFSET = 13;
-    private static final int KEYS_OFFSET = 17;
+    protected static final int IS_LEAF_OFFSET = 0;
+    protected static final int SIZE_OFFSET = IS_LEAF_OFFSET + 1;
+    protected static final int LEFT_NODE_OFFSET = SIZE_OFFSET + Integer.BYTES;
+    protected static final int RIGHT_NODE_OFFSET = LEFT_NODE_OFFSET + Integer.BYTES;
+    protected static final int PARENT_NODE_OFFSET = RIGHT_NODE_OFFSET + Integer.BYTES;
+    protected static final int KEYS_OFFSET = PARENT_NODE_OFFSET + Integer.BYTES;
 
     protected Boolean isLeaf; //offset 0
     protected Integer size; // offset 1
     protected Integer leftNodePageId; //offset 5
     protected Integer rightNodePageId; //offset 9
     protected Integer parentNodePageId; //offset 13
-    protected int[] keys; // offset 17
+    protected Integer[] keys; // offset 17
 
     public NodePageImpl(byte[] data, Integer id) {
         super(data, id);
@@ -34,6 +34,7 @@ public class NodePageImpl extends BasePageImpl implements NodePage {
 
     @Override
     public void close() {
+        super.close();
         byteBuffer.put(IS_LEAF_OFFSET, isLeaf() ? (byte) 0 : (byte) 1);
         byteBuffer.putInt(SIZE_OFFSET, getSize());
         byteBuffer.putInt(LEFT_NODE_OFFSET, getLeftNodePageId() == null ? -1 : getLeftNodePageId());
@@ -121,17 +122,21 @@ public class NodePageImpl extends BasePageImpl implements NodePage {
     }
 
     @Override
-    public int[] getKeys() {
+    public Integer[] getKeys() {
         if (keys == null) {
+            keys = new Integer[KEYS_CAPACITY];
+            int[] keysFrom = new int[KEYS_CAPACITY];
             byteBuffer.position(KEYS_OFFSET);
-            keys = new int[getSize()];
-            byteBuffer.asIntBuffer().get(keys, 0, getSize());
+            byteBuffer.asIntBuffer().get(keysFrom, 0, getSize());
+            for (int i = 0; i < getSize(); i++) {
+                keys[i] = keysFrom[i];
+            }
         }
         return keys;
     }
 
     @Override
-    public void setKeys(int[] keys) {
+    public void setKeys(Integer[] keys) {
         this.keys = keys;
     }
 

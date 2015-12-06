@@ -1,7 +1,7 @@
 package ru.spbau.mit.cursors;
 
 import ru.spbau.mit.memory.BufferManager;
-import ru.spbau.mit.memory.RecordPage;
+import ru.spbau.mit.memory.page.RecordPage;
 import ru.spbau.mit.memory.Record;
 import ru.spbau.mit.meta.Column;
 import ru.spbau.mit.meta.Table;

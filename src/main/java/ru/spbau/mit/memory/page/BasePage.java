@@ -1,4 +1,4 @@
-package ru.spbau.mit.memory;
+package ru.spbau.mit.memory.page;
 
 import java.nio.ByteBuffer;
 

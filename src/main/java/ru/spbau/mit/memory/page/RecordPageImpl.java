@@ -1,5 +1,6 @@
-package ru.spbau.mit.memory;
+package ru.spbau.mit.memory.page;
 
+import ru.spbau.mit.memory.Record;
 import ru.spbau.mit.meta.Column;
 import ru.spbau.mit.meta.Table;
 
@@ -45,7 +46,7 @@ public class RecordPageImpl extends BasePageImpl implements RecordPage {
     private BitSet getBitSet() {
         if (bitSet == null) {
             byte[] bytes = new byte[BIT_MASK_OFFSET - RECORD_COUNT_OFFSET];
-            byteBuffer.position(RecordPage.SIZE - BIT_MASK_OFFSET);
+            byteBuffer.position(SIZE - BIT_MASK_OFFSET);
             for (int i = 0; i < bytes.length; i++) {
                 bytes[i] = byteBuffer.get();
             }
@@ -57,14 +58,14 @@ public class RecordPageImpl extends BasePageImpl implements RecordPage {
     @Override
     public short getRecordCount() {
         if (recordCount == null) {
-            recordCount = byteBuffer.getShort(RecordPage.SIZE - RECORD_COUNT_OFFSET);
+            recordCount = byteBuffer.getShort(SIZE - RECORD_COUNT_OFFSET);
         }
         return recordCount;
     }
 
     private void setRecordCount(short recordCount) {
         this.recordCount = recordCount;
-        byteBuffer.putShort(RecordPage.SIZE - RECORD_COUNT_OFFSET, recordCount);
+        byteBuffer.putShort(SIZE - RECORD_COUNT_OFFSET, recordCount);
     }
 
     @Override
@@ -157,7 +158,7 @@ public class RecordPageImpl extends BasePageImpl implements RecordPage {
     @Override
     public int getNextPageId(){
         if (nextPageId == null) {
-            nextPageId = byteBuffer.getInt(RecordPage.SIZE - NEXT_PAGE_OFFSET);
+            nextPageId = byteBuffer.getInt(SIZE - NEXT_PAGE_OFFSET);
         }
         return nextPageId;
     }
@@ -165,19 +166,20 @@ public class RecordPageImpl extends BasePageImpl implements RecordPage {
     @Override
     public void setNextPageId(Integer nextPageId) {
         this.nextPageId = nextPageId;
-        byteBuffer.putInt(RecordPage.SIZE - NEXT_PAGE_OFFSET, nextPageId);
+        byteBuffer.putInt(SIZE - NEXT_PAGE_OFFSET, nextPageId);
     }
 
     @Override
     public boolean isFreeSpace() {
-        return getRecordCount() * (table.getRecordSize() + 1) < (RecordPage.SIZE - BIT_MASK_OFFSET);
+        return getRecordCount() * (table.getRecordSize() + 1) < (SIZE - BIT_MASK_OFFSET);
     }
 
     @Override
     public void close() {
+        super.close();
         //save bitSet
         byte[] bytes = getBitSet().toByteArray();
-        byteBuffer.position(RecordPage.SIZE - BIT_MASK_OFFSET);
+        byteBuffer.position(SIZE - BIT_MASK_OFFSET);
         byteBuffer.put(bytes, 0, bytes.length);
     }
 

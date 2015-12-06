@@ -1,8 +1,8 @@
-package ru.spbau.mit.memory;
+package ru.spbau.mit.memory.page;
 
+import ru.spbau.mit.memory.Record;
 import ru.spbau.mit.meta.Table;
 
-import java.nio.ByteBuffer;
 import java.util.List;
 
 /**

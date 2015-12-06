@@ -1,26 +1,35 @@
 package ru.spbau.mit.cursors.Index.BTree;
 
+import ru.spbau.mit.memory.page.LeafNodePage;
+import ru.spbau.mit.memory.page.NodePage;
+
+import java.io.IOException;
+
 /**
  * Created by gellm_000 on 06.12.2015.
  */
 public class LeafNode extends Node{
+    private LeafNodePage nodePage;
 
-    private final static int LEAFCAPACITY = 100;
-    private LeafEntry[] entries;
-
-
-    public LeafNode(){
+    public LeafNode() throws IOException {
+        super();
+        nodePage = (LeafNodePage) super.nodePage; //same page
         //TODO check if filled with NULL
-        keys = new Integer[LEAFCAPACITY + 1];
-        entries = new LeafEntry[LEAFCAPACITY + 1];
+        nodePage.setKeys(new Integer[NodePage.KEYS_CAPACITY]);
+        nodePage.setEntries(new LeafEntry[LeafNodePage.ENTRY_CAPACITY]);
+    }
+
+    public LeafNode(Integer pageId) throws IOException {
+        super(pageId);
+        nodePage = (LeafNodePage) super.nodePage; //same page
     }
 
     public LeafEntry getEntryAt(int index){
-        return entries[index];
+        return nodePage.getEntryAt(index);
     }
 
     public void setEntryAt(int index, LeafEntry e){
-        entries[index] = e;
+        nodePage.setEntryAt(index, e);
     }
 
     @Override
@@ -42,7 +51,7 @@ public class LeafNode extends Node{
     }
 
     @Override
-    protected Node split() {
+    protected Node split() throws IOException {
         int m = getSize()/2;
 
         //TODO instantiation ???

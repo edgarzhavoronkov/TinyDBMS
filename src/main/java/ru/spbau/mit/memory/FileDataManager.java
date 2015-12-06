@@ -1,6 +1,9 @@
 package ru.spbau.mit.memory;
 
 import ru.spbau.mit.PropertiesManager;
+import ru.spbau.mit.memory.page.BasePage;
+import ru.spbau.mit.memory.page.BasePageImpl;
+import ru.spbau.mit.memory.page.RecordPage;
 
 import java.io.File;
 import java.io.IOException;

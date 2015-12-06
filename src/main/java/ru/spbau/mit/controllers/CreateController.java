@@ -5,7 +5,7 @@ import net.sf.jsqlparser.statement.create.table.ColumnDefinition;
 import net.sf.jsqlparser.statement.create.table.CreateTable;
 import ru.spbau.mit.TableFactory;
 import ru.spbau.mit.memory.BufferManager;
-import ru.spbau.mit.memory.RecordPage;
+import ru.spbau.mit.memory.page.RecordPage;
 import ru.spbau.mit.meta.Column;
 import ru.spbau.mit.meta.DataType;
 import ru.spbau.mit.meta.QueryResponse;

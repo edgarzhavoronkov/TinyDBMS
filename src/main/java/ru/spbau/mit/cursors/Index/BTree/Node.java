@@ -2,7 +2,7 @@ package ru.spbau.mit.cursors.Index.BTree;
 
 import com.sun.istack.internal.Nullable;
 import ru.spbau.mit.QueryHandler;
-import ru.spbau.mit.memory.NodePage;
+import ru.spbau.mit.memory.page.NodePage;
 
 import java.io.IOException;
 
@@ -20,6 +20,27 @@ abstract class Node {
         nodePage.setParentNodePageId(null);
     }
 
+    protected Node(Integer id) throws IOException {
+        nodePage = QueryHandler.bufferManager.getNodePage(id);
+    }
+
+    public static Node createNode(boolean isLeaf) throws IOException {
+        if (isLeaf) {
+            return new LeafNode();
+        }
+        //todo add InnerNode
+        return null;
+    }
+
+    public static Node getNode(Integer pageId) throws IOException {
+        NodePage nodePage = QueryHandler.bufferManager.getNodePage(pageId);
+        if (nodePage.isLeaf()) {
+            return new LeafNode(pageId);
+        } else {
+            //todo add InnerNode
+            return null;
+        }
+    }
 
     public int getSize() {
         return nodePage.getSize();
@@ -133,7 +154,7 @@ abstract class Node {
      */
     public abstract int find(int key);
 
-    protected abstract Node split();
+    protected abstract Node split() throws IOException;
 
     protected abstract Node pushToParent(int key, Node leftChild, Node rightChild);
 
@@ -141,7 +162,7 @@ abstract class Node {
         return getSize() == nodePage.getKeys().length;
     }
 
-    public Node resolveOversize() {
+    public Node resolveOversize() throws IOException {
         int splitKey = getKeyAt(nodePage.getKeys().length / 2);
         Node newRightNode = split();
 

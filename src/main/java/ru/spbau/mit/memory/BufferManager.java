@@ -1,5 +1,6 @@
 package ru.spbau.mit.memory;
 
+import ru.spbau.mit.memory.page.*;
 import ru.spbau.mit.meta.Table;
 
 import java.io.IOException;
@@ -114,7 +115,11 @@ public class BufferManager {
         return new RecordPageImpl(getFirstFreePage(), table);
     }
 
-    public NodePage getFirstNodeFreePage() throws IOException {
+    public NodePage getFirstNodeFreePage(boolean isLeaf) throws IOException {
+        if (isLeaf) {
+            return new LeafNodePageImpl(getFirstFreePage());
+        }
+        //todo return InnerNode
         return new NodePageImpl(getFirstFreePage());
     }
 
