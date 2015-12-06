@@ -1,4 +1,4 @@
-package ru.spbau.mit.Cursors.Index.BTree;
+package ru.spbau.mit.cursors.Index.BTree;
 
 /**
  * Created by gellm_000 on 06.12.2015.
