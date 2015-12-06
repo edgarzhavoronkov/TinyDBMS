@@ -3,7 +3,6 @@ package ru.spbau.mit.memory;
 import ru.spbau.mit.meta.Column;
 import ru.spbau.mit.meta.Table;
 
-import java.nio.ByteBuffer;
 import java.util.BitSet;
 import java.util.HashMap;
 import java.util.List;
@@ -11,11 +10,11 @@ import java.util.Map;
 
 
 /**
- * PageImpl of byteBuffer
+ * RecordPageImpl of byteBuffer
  * <p>
  * Created by John on 9/12/2015.
  */
-public class PageImpl implements Page {
+public class RecordPageImpl extends BasePageImpl implements RecordPage {
     private final int NEXT_PAGE_OFFSET = 4;
     private final int RECORD_COUNT_OFFSET = 6;
     private final int BIT_MASK_OFFSET = 134;
@@ -31,27 +30,22 @@ public class PageImpl implements Page {
     private Short recordCount;
     private Integer nextPageId;
 
-    private ByteBuffer byteBuffer;
-    private long operationId;
-    private int id;
-
-    private boolean dirty;
-    private int pinCount;
-
-    public PageImpl(byte[] data, Integer id) {
-        assert data.length == SIZE;
-
-        byteBuffer = ByteBuffer.wrap(data);
-
-        this.id = id;
+    public RecordPageImpl(byte[] data, Integer id) {
+        super(data, id);
     }
 
-
+    public RecordPageImpl(BasePage basePage, Table table) {
+        super(basePage.getData(), basePage.getId());
+        operationId = ((BasePageImpl) basePage).operationId;
+        dirty = ((BasePageImpl) basePage).dirty;
+        pinCount = ((BasePageImpl) basePage).pinCount;
+        setTable(table);
+    }
 
     private BitSet getBitSet() {
         if (bitSet == null) {
             byte[] bytes = new byte[BIT_MASK_OFFSET - RECORD_COUNT_OFFSET];
-            byteBuffer.position(Page.SIZE - BIT_MASK_OFFSET);
+            byteBuffer.position(RecordPage.SIZE - BIT_MASK_OFFSET);
             for (int i = 0; i < bytes.length; i++) {
                 bytes[i] = byteBuffer.get();
             }
@@ -60,52 +54,17 @@ public class PageImpl implements Page {
         return bitSet;
     }
 
-    public ByteBuffer getByteBuffer() {
-        return this.byteBuffer;
-    }
-
     @Override
     public short getRecordCount() {
         if (recordCount == null) {
-            recordCount = byteBuffer.getShort(Page.SIZE - RECORD_COUNT_OFFSET);
+            recordCount = byteBuffer.getShort(RecordPage.SIZE - RECORD_COUNT_OFFSET);
         }
         return recordCount;
     }
 
     private void setRecordCount(short recordCount) {
         this.recordCount = recordCount;
-        byteBuffer.putShort(Page.SIZE - RECORD_COUNT_OFFSET, recordCount);
-    }
-
-    @Override
-    public int getId() {
-        return id;
-    }
-
-    @Override
-    public void pin() {
-        pinCount++;
-    }
-
-    @Override
-    public void unpin() {
-        assert pinCount > 0;
-        pinCount--;
-    }
-
-    @Override
-    public boolean isPin() {
-        return pinCount > 0;
-    }
-
-    @Override
-    public long getLastOperationId() {
-        return operationId;
-    }
-
-    @Override
-    public void updateOperationId(Long operationId) {
-        this.operationId = operationId;
+        byteBuffer.putShort(RecordPage.SIZE - RECORD_COUNT_OFFSET, recordCount);
     }
 
     @Override
@@ -157,11 +116,6 @@ public class PageImpl implements Page {
         getBitSet().set(recordNum, false);
     }
 
-    @Override
-    public byte[] getData() {
-        return byteBuffer.array();
-    }
-
     private int getFirstFreePos() {
         BitSet bitSet = getBitSet();
         return bitSet.nextClearBit(0);
@@ -185,33 +139,13 @@ public class PageImpl implements Page {
     }
 
     @Override
-    public void makeDirty() {
-        dirty = true;
-    }
-
-    @Override
-    public void makeClean() {
-        dirty = false;
-    }
-
-    @Override
-    public boolean isDirty() {
-        return dirty;
-    }
-
-    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        PageImpl page = (PageImpl) o;
+        RecordPageImpl page = (RecordPageImpl) o;
 
         return id == page.id;
-    }
-
-    @Override
-    public int hashCode() {
-        return id;
     }
 
     @Override
@@ -223,7 +157,7 @@ public class PageImpl implements Page {
     @Override
     public int getNextPageId(){
         if (nextPageId == null) {
-            nextPageId = byteBuffer.getInt(Page.SIZE - NEXT_PAGE_OFFSET);
+            nextPageId = byteBuffer.getInt(RecordPage.SIZE - NEXT_PAGE_OFFSET);
         }
         return nextPageId;
     }
@@ -231,19 +165,19 @@ public class PageImpl implements Page {
     @Override
     public void setNextPageId(Integer nextPageId) {
         this.nextPageId = nextPageId;
-        byteBuffer.putInt(Page.SIZE - NEXT_PAGE_OFFSET, nextPageId);
+        byteBuffer.putInt(RecordPage.SIZE - NEXT_PAGE_OFFSET, nextPageId);
     }
 
     @Override
     public boolean isFreeSpace() {
-        return getRecordCount() * (table.getRecordSize() + 1) < (Page.SIZE - BIT_MASK_OFFSET);
+        return getRecordCount() * (table.getRecordSize() + 1) < (RecordPage.SIZE - BIT_MASK_OFFSET);
     }
 
     @Override
     public void close() {
         //save bitSet
         byte[] bytes = getBitSet().toByteArray();
-        byteBuffer.position(Page.SIZE - BIT_MASK_OFFSET);
+        byteBuffer.position(RecordPage.SIZE - BIT_MASK_OFFSET);
         byteBuffer.put(bytes, 0, bytes.length);
     }
 

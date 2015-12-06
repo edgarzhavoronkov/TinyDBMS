@@ -23,17 +23,17 @@ public class BufferManager {
     /**
      * Store all buffered pages
      */
-    private TreeSet<Page> pages;
+    private TreeSet<BasePage> pages;
 
     /**
      * Store all pinned pages
      */
-    private TreeSet<Page> pinedPages;
+    private TreeSet<BasePage> pinedPages;
 
     /**
      * Store map page id - page (for fast find in buf)
      */
-    private Map<Integer, Page> pageMap;
+    private Map<Integer, BasePage> pageMap;
 
     public BufferManager() throws IOException {
         this.pages = new TreeSet<>((o1, o2) -> (int) (o1.getLastOperationId() - o2.getLastOperationId()));
@@ -42,32 +42,39 @@ public class BufferManager {
         fileDataManager = new FileDataManager();
     }
 
-    public Page getPage(Integer id, Table table) throws IOException {
+    public RecordPage getRecordPage(Integer id, Table table) throws IOException {
+        return new RecordPageImpl(getPage(id), table);
+    }
+
+    public NodePage getNodePage(Integer id) throws IOException {
+        return new NodePageImpl(getPage(id));
+    }
+
+    private BasePage getPage(Integer id) throws IOException {
         if (pageMap.containsKey(id)) {
-            Page page = pageMap.get(id);
+            BasePage page = pageMap.get(id);
             removePageFromBuffer(page);
             addPageToBuffer(page);
             return page;
         }
         //todo (low) remove useless byte[4096]
-        Page page = new PageImpl(new byte[Page.SIZE], id);
+        BasePage page = new BasePageImpl(new byte[BasePage.SIZE], id);
         if (pinedPages.contains(page)) {
             return pinedPages.floor(page);
         }
         page = fileDataManager.getPageById(id);
-        page.setTable(table);
         addPageToBuffer(page);
         return page;
     }
 
-    private void removePageFromBuffer(Page page) {
+    private void removePageFromBuffer(BasePage page) {
         if (pages.contains(page)) {
             pages.remove(page);
             pageMap.remove(page.getId());
         }
     }
 
-    private void addPageToBuffer(Page page) throws IOException {
+    private void addPageToBuffer(BasePage page) throws IOException {
         page.updateOperationId(operationId++);
         if (CAPACITY == (pages.size() + pinedPages.size())) {
             fileDataManager.savePage(pages.pollFirst());
@@ -77,14 +84,14 @@ public class BufferManager {
     }
 
     //???????? ???????? ??? ? ??????? ??????
-    public void pinPage(Page page) throws Exception {
+    public void pinPage(BasePage page) throws Exception {
         page.pin();
         if (pages.remove(page)) {
             pinedPages.add(page);
         }
     }
 
-    public void unPinned(Page page) throws Exception {
+    public void unPinned(BasePage page) throws Exception {
         assert (page.isPin());
         page.unpin();
         if (page.isPin() && !pinedPages.remove(page)) {
@@ -94,17 +101,25 @@ public class BufferManager {
     }
 
     public void close() throws IOException {
-        for (Page page : pages) {
+        for (BasePage page : pages) {
             fileDataManager.savePage(page);
         }
-        for (Page page : pinedPages) {
+        for (BasePage page : pinedPages) {
             fileDataManager.savePage(page);
         }
         fileDataManager.close();
     }
 
-    public Page getFirstFreePage() throws IOException {
-        Page page = fileDataManager.getFirstFreePage();
+    public RecordPage getFirstRecordFreePage(Table table) throws IOException {
+        return new RecordPageImpl(getFirstFreePage(), table);
+    }
+
+    public NodePage getFirstNodeFreePage() throws IOException {
+        return new NodePageImpl(getFirstFreePage());
+    }
+
+    private BasePage getFirstFreePage() throws IOException {
+        BasePage page = fileDataManager.getFirstFreePage();
         addPageToBuffer(page);
         return page;
     }

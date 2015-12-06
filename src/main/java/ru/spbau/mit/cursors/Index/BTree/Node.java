@@ -1,57 +1,53 @@
 package ru.spbau.mit.cursors.Index.BTree;
 
 import com.sun.istack.internal.Nullable;
-import ru.spbau.mit.memory.Page;
+import ru.spbau.mit.QueryHandler;
+import ru.spbau.mit.memory.NodePage;
 
-import java.util.ArrayList;
+import java.io.IOException;
 
 /**
  * Created by gellm_000 on 06.12.2015.
  */
 abstract class Node {
-    protected Integer[] keys;
-    protected int size;
-    protected Integer pageId;
-    protected Integer leftNodePageId;
-    protected Integer rightNodePageId;
-    protected Integer parentNodePageId;
+    protected NodePage nodePage;
 
-    protected Node(){
-        size = 0;
-        // TODO Allocate memmory for self
-        pageId = null;
-        leftNodePageId = null;
-        parentNodePageId = null;
-        rightNodePageId = null;
+    protected Node() throws IOException {
+        nodePage = QueryHandler.bufferManager.getFirstNodeFreePage();
+        nodePage.setSize(0);
+        nodePage.setLeftNodePageId(null);
+        nodePage.setRightNodePageId(null);
+        nodePage.setParentNodePageId(null);
     }
 
 
-    public int getSize(){
-        return size;
+    public int getSize() {
+        return nodePage.getSize();
     }
-    public void setSize(int sz){
-        size = sz;
-    }
-
-    public Integer getKeyAt(int index){
-        return keys[index];
+    
+    public void setSize(int size){
+        nodePage.setSize(size);
     }
 
-    public Integer getPageId(){
-        return pageId;
+    public Integer getKeyAt(int index) {
+        return nodePage.getKeys()[index];
     }
 
-    public void setKeyAt(int index, Integer value){
-        keys[index] = value;
+    public Integer getPageId() {
+        return nodePage.getId();
     }
 
-    public Integer getParentNodePageID(){
-        return parentNodePageId;
+    public void setKeyAt(int index, Integer value) {
+        nodePage.getKeys()[index] = value;
     }
 
-    public Node getParentNode(){
+    public Integer getParentNodePageID() {
+        return nodePage.getParentNodePageId();
+    }
+
+    public Node getParentNode() {
         Integer id = getParentNodePageID();
-        if(id == null){
+        if (id == null) {
             return null;
         }
         // TODO corrent instantiation of id
@@ -59,29 +55,30 @@ abstract class Node {
         return parent;
     }
 
-    public void setParentNodePageId(Integer id){
-        parentNodePageId = id;
+    public void setParentNodePageId(Integer id) {
+        nodePage.setParentNodePageId(id);
     }
 
-    public void setParentNode(Node parent){
+    public void setParentNode(Node parent) {
         setParentNodePageId(parent.getPageId());
     }
+
     @Nullable
     public Integer getLeftNodePageId(){
-        if(leftNodePageId == null){
+        if(nodePage.getLeftNodePageId() == null){
             return null;
         }
         // TODO correct instantiation getLeftNodePageId()
         Node leftNode = null;
-        if(leftNode.getParentNodePageID() != getParentNodePageID()){
+        if (leftNode.getParentNodePageID() != getParentNodePageID()) {
             return null;
         }
-        return leftNodePageId;
+        return nodePage.getLeftNodePageId();
     }
 
-    public Node getLeftNode(){
+    public Node getLeftNode() {
         Integer id = getLeftNodePageId();
-        if(id == null){
+        if (id == null) {
             return null;
         }
         //TODO correct instantiation of id
@@ -89,30 +86,30 @@ abstract class Node {
         return left;
     }
 
-    public void setLeftNodePageId(Integer id){
-        leftNodePageId = id;
+    public void setLeftNodePageId(Integer id) {
+        nodePage.setLeftNodePageId(id);
     }
 
-    public void setLeftNode(Node left){
+    public void setLeftNode(Node left) {
         setLeftNodePageId(left.getPageId());
     }
 
     @Nullable
     public Integer getRightNodePageId(){
-        if(rightNodePageId == null){
+        if(nodePage.getRightNodePageId() == null){
             return null;
         }
         // TODO correct instantiation getRightNodePageId()
         Node rightNode = null;
-        if(rightNode.getParentNodePageID() != getParentNodePageID()){
+        if (rightNode.getParentNodePageID() != getParentNodePageID()) {
             return null;
         }
-        return rightNodePageId;
+        return nodePage.getRightNodePageId();
     }
 
-    public Node getRightNode(){
+    public Node getRightNode() {
         Integer id = getRightNodePageId();
-        if(id == null){
+        if (id == null) {
             return null;
         }
         //TODO correct id instantiation
@@ -120,18 +117,17 @@ abstract class Node {
         return right;
     }
 
-    public void setRightNodePageId(Integer id){
-        rightNodePageId = id;
+    public void setRightNodePageId(Integer id) {
+        nodePage.setRightNodePageId(id);
     }
 
-    public void setRightNode(Node right){
+    public void setRightNode(Node right) {
         setRightNodePageId(right.getPageId());
     }
 
     public abstract boolean isLeaf();
 
     /**
-     *
      * @param key
      * @return for
      */
@@ -141,23 +137,23 @@ abstract class Node {
 
     protected abstract Node pushToParent(int key, Node leftChild, Node rightChild);
 
-    public boolean isFull(){
-        return getSize() == keys.length;
+    public boolean isFull() {
+        return getSize() == nodePage.getKeys().length;
     }
 
-    public Node resolveOversize(){
-        int splitKey = getKeyAt(keys.length / 2);
+    public Node resolveOversize() {
+        int splitKey = getKeyAt(nodePage.getKeys().length / 2);
         Node newRightNode = split();
 
-        if(getParentNodePageID() == null){
+        if (getParentNodePageID() == null) {
             setParentNodePageId((new InnerNode()).pageId);
         }
 
         newRightNode.setParentNodePageId(getParentNodePageID());
         newRightNode.setRightNodePageId(getRightNodePageId());
         newRightNode.setLeftNodePageId(getPageId());
-        if(getRightNodePageId() != null){
-            // TODO factory instantiation ???
+        if (getRightNodePageId() != null) {
+            // TODO factory instantiation
             Node oldRightNode = getRightNode();
             oldRightNode.setLeftNode(newRightNode);
         }
@@ -168,40 +164,43 @@ abstract class Node {
         return parentNode.pushToParent(splitKey, this, newRightNode);
     }
 
-    public boolean isTooEmpty(){
-        return getSize() < keys.length/2;
+    public boolean isTooEmpty() {
+        return getSize() < nodePage.getKeys().length / 2;
     }
 
-    public boolean canDonate(){
-        return getSize() > keys.length/2;
+    public boolean canDonate() {
+        return getSize() > nodePage.getKeys().length / 2;
     }
 
     protected abstract void transferChildren(Node receiver, Node donor, int donationIndex);
+
     protected abstract Node FuseChildren(Node leftChild, Node rightChild);
+
     protected abstract void FuseWithSibling(int separationKey, Node rightNode);
+
     protected abstract int getKeyFromSibling(int separationKey, Node sibling, int donationIndex);
 
     @Nullable
-    public Node resolveUnderflow(){
-        if(getParentNodePageID() == null){
+    public Node resolveUnderflow() {
+        if (getParentNodePageID() == null) {
             return null;
         }
 
         Node leftNode = getLeftNode();
-        if(leftNode != null && leftNode.canDonate()){
-            getParentNode().transferChildren(this, leftNode, leftNode.getSize()-1);
+        if (leftNode != null && leftNode.canDonate()) {
+            getParentNode().transferChildren(this, leftNode, leftNode.getSize() - 1);
             return null;
         }
 
         Node rightNode = getRightNode();
-        if(rightNode != null && rightNode.canDonate()){
+        if (rightNode != null && rightNode.canDonate()) {
             getParentNode().transferChildren(this, rightNode, 0);
             return null;
         }
 
-        if(leftNode != null){
+        if (leftNode != null) {
             return getParentNode().FuseChildren(leftNode, this);
-        }else {
+        } else {
             return getParentNode().FuseChildren(this, rightNode);
         }
     }

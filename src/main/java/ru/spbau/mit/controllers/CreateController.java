@@ -5,7 +5,7 @@ import net.sf.jsqlparser.statement.create.table.ColumnDefinition;
 import net.sf.jsqlparser.statement.create.table.CreateTable;
 import ru.spbau.mit.TableFactory;
 import ru.spbau.mit.memory.BufferManager;
-import ru.spbau.mit.memory.Page;
+import ru.spbau.mit.memory.RecordPage;
 import ru.spbau.mit.meta.Column;
 import ru.spbau.mit.meta.DataType;
 import ru.spbau.mit.meta.QueryResponse;
@@ -68,10 +68,10 @@ public class CreateController implements QueryController {
         String tableName = createTable.getTable().getName();
         //TODO: is there a better way to do this?!
         try {
-            Page firstFreePage = bufferManager.getFirstFreePage();
-            firstFreePage.setNextPageId(-1);
-            Table table = new Table(tableName, firstFreePage.getId(), firstFreePage.getId(), columns);
-            firstFreePage.setTable(table);
+            RecordPage firstFreeRecordPage = bufferManager.getFirstRecordFreePage(null);
+            firstFreeRecordPage.setNextPageId(-1);
+            Table table = new Table(tableName, firstFreeRecordPage.getId(), firstFreeRecordPage.getId(), columns);
+            firstFreeRecordPage.setTable(table);
             TableFactory.addTable(table);
             return new QueryResponse(QueryResponse.Status.OK, 0);
         } catch (IOException e) {

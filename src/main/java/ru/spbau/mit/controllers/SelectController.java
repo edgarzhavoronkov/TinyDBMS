@@ -28,6 +28,7 @@ import java.io.StringReader;
  */
 public class SelectController implements QueryController {
     private final BufferManager bufferManager;
+
     private SelectController(BufferManager bufferManager) {
         this.bufferManager = bufferManager;
     }
@@ -39,22 +40,22 @@ public class SelectController implements QueryController {
     @Override
     public QueryResponse process(Statement statement) throws IOException {
         try {
-            if(!(statement instanceof Select)){
+            if (!(statement instanceof Select)) {
                 throw new SQLParserException("Not a select statement: ", statement);
             }
-            PlainSelect plainSelect = (PlainSelect)(((Select) statement).getSelectBody());
-            String tableName = ((net.sf.jsqlparser.schema.Table)plainSelect.getFromItem()).getName();
+            PlainSelect plainSelect = (PlainSelect) (((Select) statement).getSelectBody());
+            String tableName = ((net.sf.jsqlparser.schema.Table) plainSelect.getFromItem()).getName();
             Table table = TableFactory.getTable(tableName);
-            if(plainSelect.getSelectItems().get(0) instanceof AllColumns) {
+            if (plainSelect.getSelectItems().get(0) instanceof AllColumns) {
                 if (plainSelect.getWhere() != null) {
-                    String columnName = ((Column)(((EqualsTo)plainSelect.getWhere()).getLeftExpression())).getColumnName();
+                    String columnName = ((Column) (((EqualsTo) plainSelect.getWhere()).getLeftExpression())).getColumnName();
                     Object value;
-                    if (((EqualsTo)plainSelect.getWhere()).getRightExpression() instanceof LongValue) {
-                        value = new Long(((LongValue)((EqualsTo)plainSelect.getWhere()).getRightExpression()).getValue()).intValue();
-                    } else if (((EqualsTo)plainSelect.getWhere()).getRightExpression() instanceof DoubleValue) {
-                        value = ((DoubleValue)((EqualsTo)plainSelect.getWhere()).getRightExpression()).getValue();
-                    } else if (((EqualsTo)plainSelect.getWhere()).getRightExpression() instanceof StringValue) {
-                        value = ((StringValue)((EqualsTo)plainSelect.getWhere()).getRightExpression()).getValue();
+                    if (((EqualsTo) plainSelect.getWhere()).getRightExpression() instanceof LongValue) {
+                        value = new Long(((LongValue) ((EqualsTo) plainSelect.getWhere()).getRightExpression()).getValue()).intValue();
+                    } else if (((EqualsTo) plainSelect.getWhere()).getRightExpression() instanceof DoubleValue) {
+                        value = ((DoubleValue) ((EqualsTo) plainSelect.getWhere()).getRightExpression()).getValue();
+                    } else if (((EqualsTo) plainSelect.getWhere()).getRightExpression() instanceof StringValue) {
+                        value = ((StringValue) ((EqualsTo) plainSelect.getWhere()).getRightExpression()).getValue();
                     } else {
                         throw new SQLParserException("Data type does not match column data type!");
                     }

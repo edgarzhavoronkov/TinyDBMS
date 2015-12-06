@@ -28,7 +28,7 @@ import java.util.Map;
  */
 public class QueryHandler {
 
-    private static BufferManager bufferManager;
+    public static BufferManager bufferManager;
 
     private static CreateController createController;
     private static SelectController selectController;

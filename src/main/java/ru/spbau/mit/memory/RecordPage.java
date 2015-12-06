@@ -10,44 +10,20 @@ import java.util.List;
  *
  * Created by John on 9/12/2015.
  */
-public interface Page {
+public interface RecordPage extends BasePage {
 
-    public short getRecordCount();
-
-    public static final Integer SIZE = 4 * 1024;
+    short getRecordCount();
 
     List<Record> getAllRecords();
 
     Record getRecord(Integer num);
-
-    ByteBuffer getByteBuffer();
 
     //todo (low) better table inference implementation
     void setTable(Table table);
 
     void removeRecord(Integer num);
 
-    byte[] getData();
-
-    int getId();
-
     void putRecord(Record record);
-
-    void makeDirty();
-
-    void makeClean();
-
-    boolean isDirty();
-
-    void pin();
-
-    void unpin();
-
-    boolean isPin();
-
-    long getLastOperationId();
-
-    void updateOperationId(Long id);
 
     boolean hasNext();
 
@@ -56,6 +32,4 @@ public interface Page {
     void setNextPageId(Integer nextPageId);
 
     boolean isFreeSpace();
-
-    void close();
 }

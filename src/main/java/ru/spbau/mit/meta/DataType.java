@@ -1,9 +1,5 @@
 package ru.spbau.mit.meta;
-import ru.spbau.mit.memory.Page;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
+import ru.spbau.mit.memory.RecordPage;
 
 /**
  * Created by John on 9/12/2015.
@@ -11,37 +7,37 @@ import java.io.ObjectInputStream;
 public enum DataType {
     INTEGER (Integer.class, Integer.BYTES) {
         @Override
-        public void putInPage(Object o, Page page) {
-            page.getByteBuffer().putInt((Integer)o);
+        public void putInPage(Object o, RecordPage recordPage) {
+            recordPage.getByteBuffer().putInt((Integer)o);
         }
 
         @Override
-        public Object getFromPage(Page page) {
-            return page.getByteBuffer().getInt();
+        public Object getFromPage(RecordPage recordPage) {
+            return recordPage.getByteBuffer().getInt();
         }
     },
     DOUBLE (Double.class, Double.BYTES) {
         @Override
-        public void putInPage(Object o, Page page) {
-            page.getByteBuffer().putDouble((Double)o);
+        public void putInPage(Object o, RecordPage recordPage) {
+            recordPage.getByteBuffer().putDouble((Double)o);
         }
 
         @Override
-        public Object getFromPage(Page page) {
-            return page.getByteBuffer().getDouble();
+        public Object getFromPage(RecordPage recordPage) {
+            return recordPage.getByteBuffer().getDouble();
         }
     },
     VARCHAR (String.class, Constants.VARCHAR_MAXIMUM_SIZE) {
         @Override
-        public void putInPage(Object o, Page page) {
-            page.getByteBuffer().put((byte) (String.valueOf(o)).length());
-            page.getByteBuffer().put((String.valueOf(o)).getBytes());
+        public void putInPage(Object o, RecordPage recordPage) {
+            recordPage.getByteBuffer().put((byte) (String.valueOf(o)).length());
+            recordPage.getByteBuffer().put((String.valueOf(o)).getBytes());
         }
 
         @Override
-        public Object getFromPage(Page page) {
+        public Object getFromPage(RecordPage recordPage) {
             byte[] buffer = new byte[Constants.VARCHAR_MAXIMUM_SIZE];
-            page.getByteBuffer().get(buffer);
+            recordPage.getByteBuffer().get(buffer);
             byte length = buffer[0];
             byte[] stringToReturn = new byte[length];
             System.arraycopy(buffer, 1, stringToReturn, 0, length);
@@ -69,7 +65,7 @@ public enum DataType {
         return size;
     }
 
-    public abstract void putInPage(Object o, Page page);
+    public abstract void putInPage(Object o, RecordPage recordPage);
 
-    public abstract Object getFromPage(Page page);
+    public abstract Object getFromPage(RecordPage recordPage);
 }

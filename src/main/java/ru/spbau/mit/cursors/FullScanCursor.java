@@ -1,7 +1,7 @@
 package ru.spbau.mit.cursors;
 
 import ru.spbau.mit.memory.BufferManager;
-import ru.spbau.mit.memory.Page;
+import ru.spbau.mit.memory.RecordPage;
 import ru.spbau.mit.memory.Record;
 import ru.spbau.mit.meta.Column;
 import ru.spbau.mit.meta.Table;
@@ -16,7 +16,7 @@ import java.util.List;
 public class FullScanCursor implements Cursor {
     private final Table table;
     private Integer pageId, offset;
-    private Page currentPage = null;
+    private RecordPage currentRecordPage = null;
     private final BufferManager bufferManager;
     private final List<Column> fields;
     private Record currentRecord;
@@ -52,9 +52,9 @@ public class FullScanCursor implements Cursor {
     }
 
     private void start() throws IOException {
-        this.currentPage = bufferManager.getPage(pageId, table);
-        currentPage.pin();
-//        currentRecord = currentPage.getRecord(offset);
+        this.currentRecordPage = bufferManager.getRecordPage(pageId, table);
+        currentRecordPage.pin();
+//        currentRecord = currentRecordPage.getRecord(offset);
     }
 
     public Record value(){
@@ -63,24 +63,24 @@ public class FullScanCursor implements Cursor {
 
     @Override
     public boolean hasNext() {
-        return (offset < currentPage.getRecordCount() || currentPage.hasNext());
+        return (offset < currentRecordPage.getRecordCount() || currentRecordPage.hasNext());
     }
 
     @Override
     public Object next() {
         if (!hasNext()) return null;
-        if(offset >= currentPage.getRecordCount()){
-            currentPage.unpin();
+        if(offset >= currentRecordPage.getRecordCount()){
+            currentRecordPage.unpin();
             try {
-                currentPage = bufferManager.getPage(currentPage.getNextPageId(), table);
+                currentRecordPage = bufferManager.getRecordPage(currentRecordPage.getNextPageId(), table);
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            currentPage.pin();
+            currentRecordPage.pin();
             offset = 0;
         }
 
-        currentRecord = currentPage.getRecord(offset);
+        currentRecord = currentRecordPage.getRecord(offset);
         offset ++;
         return currentRecord;
     }

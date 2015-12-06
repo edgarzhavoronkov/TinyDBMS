@@ -3,7 +3,6 @@ package ru.spbau.mit.memory;
 import ru.spbau.mit.PropertiesManager;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
@@ -35,33 +34,33 @@ public class FileDataManager {
             firstFreePage = Integer.parseInt(PropertiesManager.getProperties().getProperty("first_free_page"));
         }
 
-        pageCount = this.file.length() / Page.SIZE;
+        pageCount = this.file.length() / BasePage.SIZE;
         assert (pageCount > firstFreePage);
     }
 
     private void initNewDataFile() throws IOException {
         firstFreePage = 0;
-        file.setLength((long) INIT_PAGE_COUNT * Page.SIZE);
+        file.setLength((long) INIT_PAGE_COUNT * RecordPage.SIZE);
     }
 
-    private void takeToPageStart(Page page) throws IOException {
-        file.seek((long) page.getId() * Page.SIZE);
+    private void takeToPageStart(BasePage page) throws IOException {
+        file.seek((long) page.getId() * BasePage.SIZE);
     }
 
 
-    public Page getPageById(Integer id) throws IOException {
+    public BasePage getPageById(Integer id) throws IOException {
         assert (id < pageCount);
 
-        byte[] data = new byte[Page.SIZE];
-        Page page = new PageImpl(data, id);
+        byte[] data = new byte[BasePage.SIZE];
+        BasePage page = new BasePageImpl(data, id);
         takeToPageStart(page);
-        file.readFully(data, 0, Page.SIZE);
+        file.readFully(data, 0, BasePage.SIZE);
 
         return page;
     }
 
-    public Page getFirstFreePage() throws IOException {
-        Page result = getPageById(firstFreePage);
+    public BasePage getFirstFreePage() throws IOException {
+        BasePage result = getPageById(firstFreePage);
         firstFreePage++;
         if (firstFreePage >= pageCount) {
             append();
@@ -69,16 +68,16 @@ public class FileDataManager {
         return result;
     }
 
-    public void savePage(Page page) throws IOException {
+    public void savePage(BasePage page) throws IOException {
         assert (page.getId() < pageCount);
         if (!page.isDirty()) return;
         takeToPageStart(page);
-        file.write(page.getData(), 0, Page.SIZE);
+        file.write(page.getData(), 0, BasePage.SIZE);
         page.close();
     }
 
     private void append() throws IOException {
-        file.setLength(file.length() + INIT_PAGE_COUNT * Page.SIZE);
+        file.setLength(file.length() + INIT_PAGE_COUNT * BasePage.SIZE);
         pageCount += INIT_PAGE_COUNT;
     }
 
