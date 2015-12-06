@@ -3,16 +3,16 @@ package ru.spbau.mit;
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.statement.Statement;
+import net.sf.jsqlparser.statement.create.index.CreateIndex;
 import net.sf.jsqlparser.statement.create.table.CreateTable;
+import net.sf.jsqlparser.statement.delete.Delete;
 import net.sf.jsqlparser.statement.insert.Insert;
+import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.statement.update.Update;
 import ru.spbau.mit.PropertiesManager;
 import ru.spbau.mit.TableFactory;
-import ru.spbau.mit.controllers.CreateController;
-import ru.spbau.mit.controllers.InsertController;
-import ru.spbau.mit.controllers.SelectController;
-import ru.spbau.mit.controllers.UpdateController;
+import ru.spbau.mit.controllers.*;
 import ru.spbau.mit.cursors.Cursor;
 import ru.spbau.mit.memory.BufferManager;
 import ru.spbau.mit.memory.Record;
@@ -28,23 +28,34 @@ import java.util.Map;
  */
 public class QueryHandler {
 
-    static BufferManager bufferManager;
+    private static BufferManager bufferManager;
 
-    static CreateController createController;
-    static SelectController selectController;
-    static InsertController insertController;
-    static UpdateController updateController;
+    private static CreateController createController;
+    private static SelectController selectController;
+    private static InsertController insertController;
+    private static UpdateController updateController;
+    private static DeleteController deleteController;
+    private static JoinController joinController;
+    private static CreateIndexController createIndexController;
 
     public static void queryHandler(String query) throws JSQLParserException, IOException {
         Statement statement = CCJSqlParserUtil.parse(query);
         if (statement instanceof CreateTable) {
             statusHandler(createController.process(statement));
+        } else if (statement instanceof CreateIndex) {
+            statusHandler(createIndexController.process(statement));
         } else if (statement instanceof Insert) {
             statusHandler(insertController.process(statement));
         } else if (statement instanceof Update) {
-            updateController.process(statement);
+            statusHandler(updateController.process(statement));
+        } else if (statement instanceof Delete) {
+            statusHandler(deleteController.process(statement));
         } else if (statement instanceof Select) {
-            selectHandler(selectController.process(statement));
+            if (((PlainSelect)((Select) statement).getSelectBody()).getJoins() != null) {
+                selectHandler(joinController.process(statement));
+            } else {
+                selectHandler(selectController.process(statement));
+            }
         } else {
             System.out.println("Unknown command! Please try again");
         }
@@ -102,10 +113,13 @@ public class QueryHandler {
 
     public static void initialize() throws IOException {
         bufferManager = new BufferManager();
+        createIndexController = CreateIndexController.getInstance(bufferManager);
         createController = CreateController.getInstance(bufferManager);
         selectController = SelectController.getInstance(bufferManager);
         insertController = InsertController.getInstance(bufferManager);
         updateController = UpdateController.getInstance(bufferManager);
+        deleteController = DeleteController.getInstance(bufferManager);
+        joinController = JoinController.getInstance(bufferManager);
     }
 
 }
