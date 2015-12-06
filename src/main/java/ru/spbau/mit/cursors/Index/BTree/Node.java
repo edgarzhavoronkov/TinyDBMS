@@ -29,6 +29,9 @@ abstract class Node {
     public int getSize(){
         return size;
     }
+    public void setSize(int sz){
+        size = sz;
+    }
 
     public Integer getKeyAt(int index){
         return keys[index];
@@ -38,7 +41,7 @@ abstract class Node {
         return pageId;
     }
 
-    public void setKeyAt(int index, int value){
+    public void setKeyAt(int index, Integer value){
         keys[index] = value;
     }
 
@@ -154,7 +157,7 @@ abstract class Node {
         newRightNode.setRightNodePageId(getRightNodePageId());
         newRightNode.setLeftNodePageId(getPageId());
         if(getRightNodePageId() != null){
-            // TODO factory instantiation
+            // TODO factory instantiation ???
             Node oldRightNode = getRightNode();
             oldRightNode.setLeftNode(newRightNode);
         }
@@ -202,4 +205,6 @@ abstract class Node {
             return getParentNode().FuseChildren(this, rightNode);
         }
     }
+
+    protected void close(){}
 }
