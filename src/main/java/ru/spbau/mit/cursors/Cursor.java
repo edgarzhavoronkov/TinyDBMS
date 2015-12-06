@@ -1,5 +1,6 @@
 package ru.spbau.mit.cursors;
 
+import ru.spbau.mit.memory.BufferManager;
 import ru.spbau.mit.memory.Record;
 import ru.spbau.mit.meta.Table;
 
@@ -12,8 +13,15 @@ import java.util.Iterator;
 public interface Cursor extends Iterator{
     Record getCurrentRecord();
 
+    BufferManager getBufferManager();
+
     Table getTable();
 
-    public void initiateCursor(Integer pageId, Integer offset) throws IOException;
+    Integer getPageId();
+
+    Integer getOffset();
+
+    void initiateCursor(Integer pageId, Integer offset) throws IOException;
+
     //TODO - later on, when we have not select * - pass list of columns to select to cursor
 }

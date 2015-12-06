@@ -27,8 +27,21 @@ public class FullScanCursor implements Cursor {
     }
 
     @Override
+    public BufferManager getBufferManager() {
+        return bufferManager;
+    }
+
+    @Override
     public Table getTable() {
         return table;
+    }
+
+    public Integer getPageId() {
+        return pageId;
+    }
+
+    public Integer getOffset() {
+        return offset;
     }
 
     public FullScanCursor(BufferManager bufferManager, Table table, Integer pageId, Integer offset) throws IOException {
@@ -50,6 +63,7 @@ public class FullScanCursor implements Cursor {
         this.offset = offset;
         start();
     }
+
 
     private void start() throws IOException {
         this.currentRecordPage = bufferManager.getRecordPage(pageId, table);
