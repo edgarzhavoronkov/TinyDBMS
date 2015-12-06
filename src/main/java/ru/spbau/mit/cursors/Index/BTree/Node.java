@@ -65,7 +65,7 @@ abstract class Node {
     }
     @Nullable
     public Integer getLeftNodePageId(){
-        if(getLeftNodePageId() == null){
+        if(leftNodePageId == null){
             return null;
         }
         // TODO correct instantiation getLeftNodePageId()
@@ -96,7 +96,7 @@ abstract class Node {
 
     @Nullable
     public Integer getRightNodePageId(){
-        if(getRightNodePageId() == null){
+        if(rightNodePageId == null){
             return null;
         }
         // TODO correct instantiation getRightNodePageId()
