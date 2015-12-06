@@ -61,6 +61,21 @@ public class QueryHandler {
         }
     }
 
+    public static void queryFastHandler(String query) throws JSQLParserException, IOException {
+        Statement statement = CCJSqlParserUtil.parse(query);
+        if (statement instanceof CreateTable) {
+            createController.process(statement);
+        } else if (statement instanceof Insert) {
+            insertController.process(statement);
+        } else if (statement instanceof Update) {
+            updateController.process(statement);
+        } else if (statement instanceof Select) {
+            selectController.process(statement);
+        } else {
+            System.out.println("Unknown command! Please try again");
+        }
+    }
+
     private static void selectHandler(QueryResponse response) {
         if (response.getStatus() == QueryResponse.Status.OK) {
             Cursor cursor = response.getCursor();

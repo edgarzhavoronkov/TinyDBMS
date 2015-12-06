@@ -46,15 +46,16 @@ public class InsertController implements QueryController {
             Record record = getRecord(table, insert);
 
             Page page = bufferManager.getPage(table.getFirstFreePageId(), table);
-            page.putRecord(record);
-
             if (!page.isFreeSpace()) {
                 Page firstFreePage = bufferManager.getFirstFreePage();
                 firstFreePage.setTable(table);
                 page.setNextPageId(firstFreePage.getId());
                 table.setFirstFreePageId(firstFreePage.getId());
                 firstFreePage.setNextPageId(-1);
+                page = firstFreePage;
             }
+
+            page.putRecord(record);
 
             return new QueryResponse(QueryResponse.Status.OK, 1);
         } catch (SQLParserException e) {

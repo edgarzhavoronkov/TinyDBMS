@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import static ru.spbau.mit.QueryHandler.close;
 import static ru.spbau.mit.QueryHandler.initialize;
 import static ru.spbau.mit.QueryHandler.queryHandler;
+import static ru.spbau.mit.QueryHandler.queryFastHandler;
 
 
 /**
@@ -44,7 +45,18 @@ public class ConsoleController {
             command.append(line).append('\n');
         }
 
-        close();
+//        String cmd1 = "create table t1 (id INT, df DOUBLE)";
+//        queryHandler(cmd1);
+//        System.out.println(runTestInsert(10_000));
+    }
+
+    private static long runTestInsert(int insertTime) throws IOException, JSQLParserException {
+        long startTime = System.currentTimeMillis();
+        for (int i = 0; i < insertTime; i++) {
+            String cmd = String.format("INSERT INTO t1 (id, df) VALUES (%d, %f)", i, Math.random());
+            queryFastHandler(cmd);
+        }
+        return (System.currentTimeMillis() - startTime);
     }
 
 }
