@@ -84,7 +84,7 @@ public class NodePageImpl implements NodePage {
     }
 
     @Override
-    public void close() {
+    public void flush() {
         page.getByteBuffer().put(IS_LEAF_OFFSET, isLeaf() ? (byte) 0 : (byte) 1);
         page.getByteBuffer().putInt(SIZE_OFFSET, getSize());
         page.getByteBuffer().putInt(LEFT_NODE_OFFSET, getLeftNodePageId() == null ? -1 : getLeftNodePageId());
@@ -93,9 +93,8 @@ public class NodePageImpl implements NodePage {
 
         page.getByteBuffer().position(KEYS_OFFSET);
         for (int i = 0; i < getSize(); i++) {
-            page.getByteBuffer().putInt(keys[i]);
+            page.getByteBuffer().putInt(getKeys()[i]);
         }
-        page.close();
     }
 
     @Override

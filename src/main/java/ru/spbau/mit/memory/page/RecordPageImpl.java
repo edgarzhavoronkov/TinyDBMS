@@ -36,6 +36,7 @@ public class RecordPageImpl implements RecordPage {
     public RecordPageImpl(BasePage basePage, Table table) {
         page = basePage;
         setTable(table);
+        ((BasePageImpl) basePage).setAfterClose(this::flush);
     }
 
     @Override
@@ -211,15 +212,13 @@ public class RecordPageImpl implements RecordPage {
     }
 
     @Override
-    public void close() {
+    public void flush() {
         //save bitSet
         byte[] bytes = getBitSet().toByteArray();
         page.getByteBuffer().position(SIZE - BIT_MASK_OFFSET);
         page.getByteBuffer().put(bytes, 0, bytes.length);
-        page.getByteBuffer().putInt(SIZE - NEXT_PAGE_OFFSET, nextPageId);
-        page.getByteBuffer().putShort(SIZE - RECORD_COUNT_OFFSET, recordCount);
-
-        page.close();
+        page.getByteBuffer().putInt(SIZE - NEXT_PAGE_OFFSET, getNextPageId());
+        page.getByteBuffer().putShort(SIZE - RECORD_COUNT_OFFSET, getRecordCount());
     }
 
 }

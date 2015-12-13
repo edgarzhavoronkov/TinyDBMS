@@ -8,6 +8,7 @@ public class InnerNodePageImpl extends NodePageImpl implements InnerNodePage {
 
     public InnerNodePageImpl(BasePage basePage) {
         super(basePage);
+        ((BasePageImpl) basePage).setAfterClose(this::flush);
     }
 
     public Integer[] getChildren() {
@@ -32,11 +33,12 @@ public class InnerNodePageImpl extends NodePageImpl implements InnerNodePage {
     }
 
     @Override
-    public void close() {
+    public void flush() {
         page.getByteBuffer().position(CHILDREN_OFFSET);
         for (int i = 0; i < getSize(); i++) {
-            page.getByteBuffer().putInt(children[i]);
+            page.getByteBuffer().putInt(getChildren()[i]);
         }
-        super.close();
+        super.flush();
     }
+
 }

@@ -181,7 +181,7 @@ public class InnerNode extends Node{
             getRightNode().setLeftNode(this);
         }
 
-        //TODO close evcerything
+        //TODO flush evcerything
         rightNode.close();
     }
 

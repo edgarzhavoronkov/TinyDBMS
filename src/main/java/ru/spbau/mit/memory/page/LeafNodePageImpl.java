@@ -13,17 +13,18 @@ public class LeafNodePageImpl extends NodePageImpl implements LeafNodePage {
 
     public LeafNodePageImpl(BasePage basePage) {
         super(basePage);
+        ((BasePageImpl) basePage).setAfterClose(this::flush);
     }
 
     @Override
-    public void close() {
+    public void flush() {
         page.getByteBuffer().position(ENTRY_OFFSET);
         for (int i = 0; i < getSize(); i++) {
-            LeafEntry entry = entries[i];
+            LeafEntry entry = getEntries()[i];
             page.getByteBuffer().putInt(entry.getPageId());
             page.getByteBuffer().putInt(entry.getOffset());
         }
-        super.close();
+        super.flush();
     }
 
     private LeafEntry[] getEntries() {

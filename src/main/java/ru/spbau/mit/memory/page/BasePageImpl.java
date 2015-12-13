@@ -12,6 +12,7 @@ public class BasePageImpl implements BasePage {
 
     protected boolean dirty;
     protected int pinCount;
+    public BeforeClose beforeClose;
 
     public BasePageImpl(byte[] data, Integer id) {
         assert data.length == SIZE;
@@ -90,8 +91,14 @@ public class BasePageImpl implements BasePage {
     }
 
     @Override
-    public  void close() {
+    public void flush() {
+        if (beforeClose != null) {
+            beforeClose.beforeClose();
+        }
+    }
 
+    public void setAfterClose(BeforeClose beforeClose) {
+        this.beforeClose = beforeClose;
     }
 
 }

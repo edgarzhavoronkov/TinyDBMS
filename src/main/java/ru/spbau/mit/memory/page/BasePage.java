@@ -30,5 +30,5 @@ public interface BasePage {
 
     void updateOperationId(Long id);
 
-    void close();
+    void flush();
 }

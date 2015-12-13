@@ -48,12 +48,15 @@ public class BufferManager {
             BasePage page = pageMap.get(id);
             removePageFromBuffer(page);
             addPageToBuffer(page);
+            page.flush(); //save wrapper data
             return page;
         }
         //todo (low) remove useless byte[4096]
         BasePage page = new BasePageImpl(new byte[BasePage.SIZE], id);
         if (pinedPages.contains(page)) {
-            return pinedPages.floor(page);
+            BasePage floor = pinedPages.floor(page);
+            floor.flush(); //save wrapper data
+            return floor;
         }
         page = fileDataManager.getPageById(id);
         addPageToBuffer(page);
@@ -70,7 +73,9 @@ public class BufferManager {
     private void addPageToBuffer(BasePage page) throws IOException {
         page.updateOperationId(operationId++);
         if (CAPACITY == (pages.size() + pinedPages.size())) {
-            fileDataManager.savePage(pages.pollFirst());
+            BasePage pageToRemove = pages.pollFirst();
+            pageMap.remove(pageToRemove.getId());
+            fileDataManager.savePage(pageToRemove);
         }
         pageMap.put(page.getId(), page);
         pages.add(page);

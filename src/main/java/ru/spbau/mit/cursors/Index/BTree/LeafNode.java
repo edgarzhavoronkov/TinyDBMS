@@ -94,7 +94,7 @@ public class LeafNode extends Node{
             getRightNode().setLeftNode(this);
         }
 
-        //TODO close everything
+        //TODO flush everything
         rightNode.close();
     }
 
