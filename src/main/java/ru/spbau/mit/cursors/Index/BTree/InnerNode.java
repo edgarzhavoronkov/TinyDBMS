@@ -22,7 +22,6 @@ public class InnerNode extends Node {
         nodePage.setLeftNodePageId(null);
         nodePage.setRightNodePageId(null);
         nodePage.setParentNodePageId(null);
-        nodePage.setIsLeaf(false);
         //now created in page
 //        keys = new Integer[INNERCAPACITY + 1];
 //        children = new Integer[INNERCAPACITY + 2];
@@ -38,7 +37,7 @@ public class InnerNode extends Node {
 
     public Node getChild(int index) throws IOException {
         //todo null in children array?
-        if (getChildPageAt(getChildPageAt(index)) == null) {
+        if (getChildPageAt(index) == null) {
             return null;
         }
         // TODO add construction getChildPageAt(index)

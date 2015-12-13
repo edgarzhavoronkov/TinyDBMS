@@ -191,8 +191,8 @@ public class NodePageImpl implements NodePage {
 
     public Integer[] getKeys() {
         if (keys == null) {
-            keys = new Integer[KEYS_CAPACITY];
-            int[] keysFrom = new int[KEYS_CAPACITY];
+            keys = new Integer[KEYS_CAPACITY + 1];
+            int[] keysFrom = new int[KEYS_CAPACITY + 1];
             page.getByteBuffer().position(KEYS_OFFSET);
             page.getByteBuffer().asIntBuffer().get(keysFrom, 0, getSize());
             for (int i = 0; i < getSize(); i++) {
