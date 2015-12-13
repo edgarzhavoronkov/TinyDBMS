@@ -34,20 +34,21 @@ public class ConsoleController {
         StringBuilder command = new StringBuilder();
         BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
 
-        while (true) {
-            String line = input.readLine();
-            if(line.length() == 0 && command.length() > 0){
-                queryHandler(command.toString());
-                command = new StringBuilder();
-            }
+//        while (true) {
+//            String line = input.readLine();
+//            if(line.length() == 0 && command.length() > 0){
+//                queryHandler(command.toString());
+//                command = new StringBuilder();
+//            }
+//
+//            if (line.toLowerCase().trim().equals("quit")) break;
+//            command.append(line).append('\n');
+//        }
 
-            if (line.toLowerCase().trim().equals("quit")) break;
-            command.append(line).append('\n');
-        }
-
-//        String cmd1 = "create table t1 (id INT, df DOUBLE)";
-//        queryHandler(cmd1);
-//        System.out.println(runTestInsert(10_000));
+        String cmd1 = "create table t1 (id INT, df DOUBLE)";
+        queryHandler(cmd1);
+        System.out.println(runTestInsert(10_000_000));
+//        queryHandler("select * from t1 where id = 5");
     }
 
     private static long runTestInsert(int insertTime) throws IOException, JSQLParserException {
@@ -55,6 +56,9 @@ public class ConsoleController {
         for (int i = 0; i < insertTime; i++) {
             String cmd = String.format("INSERT INTO t1 (id, df) VALUES (%d, %f)", i, Math.random());
             queryFastHandler(cmd);
+            if (i % 10000 == 0) {
+                System.out.println(String.format("%d values inserted", i));
+            }
         }
         return (System.currentTimeMillis() - startTime);
     }

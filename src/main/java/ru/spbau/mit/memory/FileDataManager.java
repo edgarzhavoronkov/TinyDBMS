@@ -73,8 +73,8 @@ public class FileDataManager {
         assert (page.getId() < pageCount);
         if (!page.isDirty()) return;
         takeToPageStart(page);
-        file.write(page.getData(), 0, Page.SIZE);
         page.close();
+        file.write(page.getData(), 0, Page.SIZE);
     }
 
     private void append() throws IOException {

@@ -4,6 +4,7 @@ import ru.spbau.mit.meta.Table;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.TreeSet;
 
@@ -21,7 +22,7 @@ public class BufferManager {
     private FileDataManager fileDataManager;
 
     /**
-     * Store all buffered pages
+     * Store all unpinned buffered pages
      */
     private TreeSet<Page> pages;
 
@@ -34,6 +35,8 @@ public class BufferManager {
      * Store map page id - page (for fast find in buf)
      */
     private Map<Integer, Page> pageMap;
+//todo make
+//    LinkedHashMap
 
     public BufferManager() throws IOException {
         this.pages = new TreeSet<>((o1, o2) -> (int) (o1.getLastOperationId() - o2.getLastOperationId()));
@@ -70,7 +73,9 @@ public class BufferManager {
     private void addPageToBuffer(Page page) throws IOException {
         page.updateOperationId(operationId++);
         if (CAPACITY == (pages.size() + pinedPages.size())) {
-            fileDataManager.savePage(pages.pollFirst());
+            Page pageToRemove = pages.pollFirst();
+            pageMap.remove(pageToRemove.getId());
+            fileDataManager.savePage(pageToRemove);
         }
         pageMap.put(page.getId(), page);
         pages.add(page);

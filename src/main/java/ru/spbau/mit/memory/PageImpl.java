@@ -2,6 +2,7 @@ package ru.spbau.mit.memory;
 
 import ru.spbau.mit.meta.Column;
 import ru.spbau.mit.meta.Table;
+import sun.nio.ch.DirectBuffer;
 
 import java.nio.ByteBuffer;
 import java.util.BitSet;
