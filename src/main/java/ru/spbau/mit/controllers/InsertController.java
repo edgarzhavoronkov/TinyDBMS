@@ -9,15 +9,18 @@ import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.insert.Insert;
 import ru.spbau.mit.TableFactory;
 import ru.spbau.mit.memory.BufferManager;
-import ru.spbau.mit.memory.page.RecordPage;
 import ru.spbau.mit.memory.Record;
+import ru.spbau.mit.memory.page.RecordPage;
+import ru.spbau.mit.memory.page.RecordPageImpl;
 import ru.spbau.mit.meta.Column;
 import ru.spbau.mit.meta.DataType;
 import ru.spbau.mit.meta.QueryResponse;
 import ru.spbau.mit.meta.Table;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -44,9 +47,9 @@ public class InsertController implements QueryController {
             Table table = TableFactory.getTable(insert.getTable().getName());
             Record record = getRecord(table, insert);
 
-            RecordPage recordPage = bufferManager.getRecordPage(table.getFirstFreePageId(), table);
+            RecordPage recordPage = new RecordPageImpl(bufferManager.getPage(table.getFirstFreePageId()), table);
             if (!recordPage.isFreeSpace()) {
-                RecordPage firstFreeRecordPage = bufferManager.getFirstRecordFreePage(table);
+                RecordPage firstFreeRecordPage = new RecordPageImpl(bufferManager.getFirstFreePage(), table);
                 recordPage.setNextPageId(firstFreeRecordPage.getId());
                 table.setFirstFreePageId(firstFreeRecordPage.getId());
                 firstFreeRecordPage.setNextPageId(-1);

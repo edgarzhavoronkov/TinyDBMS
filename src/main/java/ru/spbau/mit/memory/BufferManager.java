@@ -1,7 +1,7 @@
 package ru.spbau.mit.memory;
 
-import ru.spbau.mit.memory.page.*;
-import ru.spbau.mit.meta.Table;
+import ru.spbau.mit.memory.page.BasePage;
+import ru.spbau.mit.memory.page.BasePageImpl;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -43,15 +43,7 @@ public class BufferManager {
         fileDataManager = new FileDataManager();
     }
 
-    public RecordPage getRecordPage(Integer id, Table table) throws IOException {
-        return new RecordPageImpl(getPage(id), table);
-    }
-
-    public NodePage getNodePage(Integer id) throws IOException {
-        return new NodePageImpl(getPage(id));
-    }
-
-    private BasePage getPage(Integer id) throws IOException {
+    public BasePage getPage(Integer id) throws IOException {
         if (pageMap.containsKey(id)) {
             BasePage page = pageMap.get(id);
             removePageFromBuffer(page);
@@ -84,7 +76,6 @@ public class BufferManager {
         pages.add(page);
     }
 
-    //???????? ???????? ??? ? ??????? ??????
     public void pinPage(BasePage page) throws Exception {
         page.pin();
         if (pages.remove(page)) {
@@ -111,19 +102,7 @@ public class BufferManager {
         fileDataManager.close();
     }
 
-    public RecordPage getFirstRecordFreePage(Table table) throws IOException {
-        return new RecordPageImpl(getFirstFreePage(), table);
-    }
-
-    public NodePage getFirstNodeFreePage(boolean isLeaf) throws IOException {
-        if (isLeaf) {
-            return new LeafNodePageImpl(getFirstFreePage());
-        }
-        //todo return InnerNode
-        return new NodePageImpl(getFirstFreePage());
-    }
-
-    private BasePage getFirstFreePage() throws IOException {
+    public BasePage getFirstFreePage() throws IOException {
         BasePage page = fileDataManager.getFirstFreePage();
         addPageToBuffer(page);
         return page;

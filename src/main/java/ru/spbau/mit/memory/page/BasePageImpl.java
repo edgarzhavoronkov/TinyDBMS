@@ -75,6 +75,16 @@ public class BasePageImpl implements BasePage {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        BasePage page = (BasePageImpl) o;
+
+        return id == page.getId();
+    }
+
+    @Override
     public int hashCode() {
         return id;
     }

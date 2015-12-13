@@ -1,8 +1,9 @@
 package ru.spbau.mit.cursors;
 
 import ru.spbau.mit.memory.BufferManager;
-import ru.spbau.mit.memory.page.RecordPage;
 import ru.spbau.mit.memory.Record;
+import ru.spbau.mit.memory.page.RecordPage;
+import ru.spbau.mit.memory.page.RecordPageImpl;
 import ru.spbau.mit.meta.Column;
 import ru.spbau.mit.meta.Table;
 
@@ -66,7 +67,7 @@ public class FullScanCursor implements Cursor {
 
 
     private void start() throws IOException {
-        this.currentRecordPage = bufferManager.getRecordPage(pageId, table);
+        this.currentRecordPage = new RecordPageImpl(bufferManager.getPage(pageId), table);
         currentRecordPage.pin();
 //        currentRecord = currentRecordPage.getRecord(offset);
     }
@@ -86,7 +87,7 @@ public class FullScanCursor implements Cursor {
         if(offset >= currentRecordPage.getRecordCount()){
             currentRecordPage.unpin();
             try {
-                currentRecordPage = bufferManager.getRecordPage(currentRecordPage.getNextPageId(), table);
+                currentRecordPage = new RecordPageImpl(bufferManager.getPage(pageId), table);
             } catch (IOException e) {
                 e.printStackTrace();
             }

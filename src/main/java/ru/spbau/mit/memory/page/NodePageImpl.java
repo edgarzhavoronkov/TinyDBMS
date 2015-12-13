@@ -1,10 +1,12 @@
 package ru.spbau.mit.memory.page;
 
 
+import java.nio.ByteBuffer;
+
 /**
  * Created by John on 12/6/2015.
  */
-public class NodePageImpl extends BasePageImpl implements NodePage {
+public class NodePageImpl implements NodePage {
     private static final int NULL_PAGE_ID = -1;
 
     protected static final int IS_LEAF_OFFSET = 0;
@@ -20,37 +22,86 @@ public class NodePageImpl extends BasePageImpl implements NodePage {
     protected Integer rightNodePageId; //offset 9
     protected Integer parentNodePageId; //offset 13
     protected Integer[] keys; // offset 17
-
-    public NodePageImpl(byte[] data, Integer id) {
-        super(data, id);
-    }
+    protected BasePage page;
 
     public NodePageImpl(BasePage basePage) {
-        super(basePage.getData(), basePage.getId());
-        operationId = ((BasePageImpl) basePage).operationId;
-        dirty = ((BasePageImpl) basePage).dirty;
-        pinCount = ((BasePageImpl) basePage).pinCount;
+        this.page = basePage;
+    }
+
+    @Override
+    public ByteBuffer getByteBuffer() {
+        return page.getByteBuffer();
+    }
+
+    @Override
+    public byte[] getData() {
+        return page.getData();
+    }
+
+    @Override
+    public int getId() {
+        return page.getId();
+    }
+
+    @Override
+    public void makeDirty() {
+        page.makeDirty();
+    }
+
+    @Override
+    public void makeClean() {
+        page.makeClean();
+    }
+
+    @Override
+    public boolean isDirty() {
+        return page.isDirty();
+    }
+
+    @Override
+    public void pin() {
+        page.pin();
+    }
+
+    @Override
+    public void unpin() {
+        page.unpin();
+    }
+
+    @Override
+    public boolean isPin() {
+        return page.isPin();
+    }
+
+    @Override
+    public long getLastOperationId() {
+        return page.getLastOperationId();
+    }
+
+    @Override
+    public void updateOperationId(Long id) {
+        page.updateOperationId(id);
     }
 
     @Override
     public void close() {
-        super.close();
-        byteBuffer.put(IS_LEAF_OFFSET, isLeaf() ? (byte) 0 : (byte) 1);
-        byteBuffer.putInt(SIZE_OFFSET, getSize());
-        byteBuffer.putInt(LEFT_NODE_OFFSET, getLeftNodePageId() == null ? -1 : getLeftNodePageId());
-        byteBuffer.putInt(RIGHT_NODE_OFFSET, getRightNodePageId() == null ? -1 : getRightNodePageId());
-        byteBuffer.putInt(PARENT_NODE_OFFSET, getParentNodePageId() == null ? -1 : getParentNodePageId());
+        page.getByteBuffer().put(IS_LEAF_OFFSET, isLeaf() ? (byte) 0 : (byte) 1);
+        page.getByteBuffer().putInt(SIZE_OFFSET, getSize());
+        page.getByteBuffer().putInt(LEFT_NODE_OFFSET, getLeftNodePageId() == null ? -1 : getLeftNodePageId());
+        page.getByteBuffer().putInt(RIGHT_NODE_OFFSET, getRightNodePageId() == null ? -1 : getRightNodePageId());
+        page.getByteBuffer().putInt(PARENT_NODE_OFFSET, getParentNodePageId() == null ? -1 : getParentNodePageId());
 
-        byteBuffer.position(KEYS_OFFSET);
-        for (int key : getKeys()) {
-            byteBuffer.putInt(key);
+        page.getByteBuffer().position(KEYS_OFFSET);
+        for (int i = 0; i < getSize(); i++) {
+            page.getByteBuffer().putInt(keys[i]);
         }
+        page.close();
     }
 
     @Override
     public boolean isLeaf() {
         if (isLeaf == null) {
-            isLeaf = byteBuffer.get(IS_LEAF_OFFSET) != 0;
+            isLeaf = page.getByteBuffer().get(IS_LEAF_OFFSET) != 0;
         }
         return isLeaf;
     }
@@ -63,7 +114,7 @@ public class NodePageImpl extends BasePageImpl implements NodePage {
     @Override
     public int getSize() {
         if (size == null) {
-            size = byteBuffer.getInt(SIZE_OFFSET);
+            size = page.getByteBuffer().getInt(SIZE_OFFSET);
         }
         return size;
     }
@@ -76,7 +127,7 @@ public class NodePageImpl extends BasePageImpl implements NodePage {
     @Override
     public Integer getLeftNodePageId() {
         if (leftNodePageId == null) {
-            leftNodePageId = byteBuffer.getInt(LEFT_NODE_OFFSET);
+            leftNodePageId = page.getByteBuffer().getInt(LEFT_NODE_OFFSET);
         }
         return leftNodePageId == NULL_PAGE_ID? null : leftNodePageId;
     }
@@ -92,7 +143,7 @@ public class NodePageImpl extends BasePageImpl implements NodePage {
     @Override
     public Integer getRightNodePageId() {
         if (rightNodePageId == null) {
-            rightNodePageId = byteBuffer.getInt(RIGHT_NODE_OFFSET);
+            rightNodePageId = page.getByteBuffer().getInt(RIGHT_NODE_OFFSET);
         }
         return rightNodePageId == NULL_PAGE_ID? null : rightNodePageId;
     }
@@ -108,7 +159,7 @@ public class NodePageImpl extends BasePageImpl implements NodePage {
     @Override
     public Integer getParentNodePageId() {
         if (parentNodePageId == null) {
-            parentNodePageId = byteBuffer.getInt(PARENT_NODE_OFFSET);
+            parentNodePageId = page.getByteBuffer().getInt(PARENT_NODE_OFFSET);
         }
         return parentNodePageId == NULL_PAGE_ID? null : parentNodePageId;
     }
@@ -126,18 +177,13 @@ public class NodePageImpl extends BasePageImpl implements NodePage {
         if (keys == null) {
             keys = new Integer[KEYS_CAPACITY];
             int[] keysFrom = new int[KEYS_CAPACITY];
-            byteBuffer.position(KEYS_OFFSET);
-            byteBuffer.asIntBuffer().get(keysFrom, 0, getSize());
+            page.getByteBuffer().position(KEYS_OFFSET);
+            page.getByteBuffer().asIntBuffer().get(keysFrom, 0, getSize());
             for (int i = 0; i < getSize(); i++) {
                 keys[i] = keysFrom[i];
             }
         }
         return keys;
-    }
-
-    @Override
-    public void setKeys(Integer[] keys) {
-        this.keys = keys;
     }
 
 }

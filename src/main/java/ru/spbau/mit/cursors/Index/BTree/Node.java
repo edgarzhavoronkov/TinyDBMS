@@ -1,8 +1,10 @@
 package ru.spbau.mit.cursors.Index.BTree;
 
-import com.sun.istack.internal.Nullable;
+
+//import com.sun.istack.internal.Nullable;
 import ru.spbau.mit.QueryHandler;
 import ru.spbau.mit.memory.page.NodePage;
+import ru.spbau.mit.memory.page.NodePageImpl;
 
 import java.io.IOException;
 
@@ -13,7 +15,7 @@ abstract class Node {
     protected NodePage nodePage;
 
     protected Node() throws IOException {
-        nodePage = QueryHandler.bufferManager.getFirstNodeFreePage();
+//        nodePage = QueryHandler.bufferManager.getFirstNodeFreePage();
         nodePage.setSize(0);
         nodePage.setLeftNodePageId(null);
         nodePage.setRightNodePageId(null);
@@ -21,7 +23,7 @@ abstract class Node {
     }
 
     protected Node(Integer id) throws IOException {
-        nodePage = QueryHandler.bufferManager.getNodePage(id);
+        nodePage = new NodePageImpl(QueryHandler.bufferManager.getPage(id));
     }
 
     public static Node createNode(boolean isLeaf) throws IOException {
@@ -33,7 +35,7 @@ abstract class Node {
     }
 
     public static Node getNode(Integer pageId) throws IOException {
-        NodePage nodePage = QueryHandler.bufferManager.getNodePage(pageId);
+        NodePage nodePage = new NodePageImpl(QueryHandler.bufferManager.getPage(pageId));
         if (nodePage.isLeaf()) {
             return new LeafNode(pageId);
         } else {
@@ -84,7 +86,7 @@ abstract class Node {
         setParentNodePageId(parent.getPageId());
     }
 
-    @Nullable
+    //    @Nullable
     public Integer getLeftNodePageId(){
         if(nodePage.getLeftNodePageId() == null){
             return null;
@@ -115,7 +117,7 @@ abstract class Node {
         setLeftNodePageId(left.getPageId());
     }
 
-    @Nullable
+    //    @Nullable
     public Integer getRightNodePageId(){
         if(nodePage.getRightNodePageId() == null){
             return null;
@@ -156,7 +158,7 @@ abstract class Node {
 
     protected abstract Node split() throws IOException;
 
-    protected abstract Node pushToParent(int key, Node leftChild, Node rightChild);
+    protected abstract Node pushToParent(int key, Node leftChild, Node rightChild) throws IOException;
 
     public boolean isFull() {
         return getSize() == nodePage.getKeys().length;
@@ -167,7 +169,7 @@ abstract class Node {
         Node newRightNode = split();
 
         if (getParentNodePageID() == null) {
-            setParentNodePageId((new InnerNode()).pageId);
+//            setParentNodePageId((new InnerNode()).pageId);
         }
 
         newRightNode.setParentNodePageId(getParentNodePageID());
@@ -200,7 +202,7 @@ abstract class Node {
     protected abstract void FuseWithSibling(int separationKey, Node rightNode);
     protected abstract Integer getKeyFromSibling(int separationKey, Node sibling, int donationIndex);
 
-    @Nullable
+    //    @Nullable
     public Node resolveUnderflow() {
         if (getParentNodePageID() == null) {
             return null;

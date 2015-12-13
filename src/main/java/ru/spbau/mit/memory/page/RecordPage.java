@@ -1,9 +1,8 @@
 package ru.spbau.mit.memory.page;
 
+import ru.spbau.mit.cursors.Index.BTree.LeafEntry;
 import ru.spbau.mit.memory.Record;
 import ru.spbau.mit.meta.Table;
-
-import java.util.List;
 
 /**
  * Interface for page
@@ -14,8 +13,6 @@ public interface RecordPage extends BasePage {
 
     short getRecordCount();
 
-    List<Record> getAllRecords();
-
     Record getRecord(Integer num);
 
     //todo (low) better table inference implementation
@@ -23,7 +20,7 @@ public interface RecordPage extends BasePage {
 
     void removeRecord(Integer num);
 
-    void putRecord(Record record);
+    LeafEntry putRecord(Record record);
 
     boolean hasNext();
 

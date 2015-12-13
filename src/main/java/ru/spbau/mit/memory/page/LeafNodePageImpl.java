@@ -6,14 +6,10 @@ import ru.spbau.mit.cursors.Index.BTree.LeafEntry;
  * Created by John on 12/6/2015.
  */
 public class LeafNodePageImpl extends NodePageImpl implements LeafNodePage {
-    private static final int EMPTY_ENTRY_ID = -1;
     private static final int ENTRY_OFFSET = KEYS_OFFSET + KEYS_CAPACITY * Integer.BYTES;
 
     private LeafEntry[] entries;
 
-    public LeafNodePageImpl(byte[] data, Integer id) {
-        super(data, id);
-    }
 
     public LeafNodePageImpl(BasePage basePage) {
         super(basePage);
@@ -21,26 +17,22 @@ public class LeafNodePageImpl extends NodePageImpl implements LeafNodePage {
 
     @Override
     public void close() {
-        super.close();
-        byteBuffer.position(ENTRY_OFFSET);
-        for (LeafEntry entry : entries) {
-            if (entry == null) {
-                byteBuffer.putInt(EMPTY_ENTRY_ID);
-            } else {
-                byteBuffer.putInt(entry.getPageId());
-                byteBuffer.putInt(entry.getOffset());
-            }
+        page.getByteBuffer().position(ENTRY_OFFSET);
+        for (int i = 0; i < getSize(); i++) {
+            LeafEntry entry = entries[i];
+            page.getByteBuffer().putInt(entry.getPageId());
+            page.getByteBuffer().putInt(entry.getOffset());
         }
+        super.close();
     }
 
     private LeafEntry[] getEntries() {
         if (entries == null) {
-            byteBuffer.position(ENTRY_OFFSET);
+            page.getByteBuffer().position(ENTRY_OFFSET);
             entries = new LeafEntry[ENTRY_CAPACITY];
-            for (int i = 0; i < entries.length; i++) {
-                int pageId = byteBuffer.getInt();
-                if (pageId == EMPTY_ENTRY_ID) continue; //means LeafEntry is null
-                int offset = byteBuffer.getInt();
+            for (int i = 0; i < getSize(); i++) {
+                int pageId = page.getByteBuffer().getInt();
+                int offset = page.getByteBuffer().getInt();
                 entries[i] = new LeafEntry(pageId, offset);
             }
         }
@@ -57,8 +49,4 @@ public class LeafNodePageImpl extends NodePageImpl implements LeafNodePage {
         getEntries()[index] = leafEntry;
     }
 
-    @Override
-    public void setEntries(LeafEntry[] entries) {
-        this.entries = entries;
-    }
 }

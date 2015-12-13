@@ -1,5 +1,6 @@
 package ru.spbau.mit.cursors.Index.BTree;
 
+import java.io.IOException;
 import java.util.Objects;
 
 /**
@@ -9,9 +10,10 @@ public class InnerNode extends Node{
     private final static int INNERCAPACITY = 100;
     private Integer[] children;
 
-    public InnerNode(){
+    public InnerNode() throws IOException {
+        super();
         // TODO check if filled with null
-        keys = new Integer[INNERCAPACITY + 1];
+//        keys = new Integer[INNERCAPACITY + 1];
         children = new Integer[INNERCAPACITY + 2];
     }
 
@@ -82,7 +84,7 @@ public class InnerNode extends Node{
     }
 
     @Override
-    protected Node split() {
+    protected Node split() throws IOException {
         int m = getSize()/2;
         // TODO construction
         // TODO WTF with -1 in all places. Need check
@@ -105,7 +107,7 @@ public class InnerNode extends Node{
     }
 
     @Override
-    protected Node pushToParent(int key, Node leftChild, Node rightChild) {
+    protected Node pushToParent(int key, Node leftChild, Node rightChild) throws IOException {
         insertAt(find(key), key, leftChild, rightChild);
         if(isFull()){
             return resolveOversize();

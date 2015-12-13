@@ -1,9 +1,6 @@
-package ru.spbau.mit.Cursors.Index.BTree;
+package ru.spbau.mit.cursors.Index.BTree;
 
-import ru.spbau.mit.Cursors.Index.Index;
-import ru.spbau.mit.memory.Page;
-
-import java.util.ArrayList;
+import ru.spbau.mit.cursors.Index.Index;
 
 /**
  * Created by gellm_000 on 30.10.2015.

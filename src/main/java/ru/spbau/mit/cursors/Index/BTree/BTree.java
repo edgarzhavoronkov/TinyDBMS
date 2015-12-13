@@ -4,7 +4,7 @@ package ru.spbau.mit.cursors.Index.BTree;
  * Created by gellm_000 on 06.12.2015.
  */
 public class BTree {
-    private Node root;
+    /*private Node root;
 
     public BTree(){
         // TODO - OK CONSTRUCTOR
@@ -48,4 +48,5 @@ public class BTree {
         }
         return (LeafNode)node;
     }
+*/
 }

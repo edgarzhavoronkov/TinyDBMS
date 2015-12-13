@@ -1,7 +1,6 @@
 package ru.spbau.mit.cursors.Index.BTree;
 
 import ru.spbau.mit.memory.page.LeafNodePage;
-import ru.spbau.mit.memory.page.NodePage;
 
 import java.io.IOException;
 
@@ -15,8 +14,6 @@ public class LeafNode extends Node{
         super();
         nodePage = (LeafNodePage) super.nodePage; //same page
         //TODO check if filled with NULL
-        nodePage.setKeys(new Integer[NodePage.KEYS_CAPACITY]);
-        nodePage.setEntries(new LeafEntry[LeafNodePage.ENTRY_CAPACITY]);
     }
 
     public LeafNode(Integer pageId) throws IOException {

@@ -8,8 +8,9 @@ import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
 import net.sf.jsqlparser.expression.operators.conditional.OrExpression;
 import net.sf.jsqlparser.expression.operators.relational.*;
 import ru.spbau.mit.memory.BufferManager;
-import ru.spbau.mit.memory.page.RecordPage;
 import ru.spbau.mit.memory.Record;
+import ru.spbau.mit.memory.page.RecordPage;
+import ru.spbau.mit.memory.page.RecordPageImpl;
 import ru.spbau.mit.meta.Column;
 import ru.spbau.mit.meta.Table;
 
@@ -82,7 +83,7 @@ public class WhereCursor implements Cursor {
     }
 
     private void start() throws IOException {
-        this.currentRecordPage = bufferManager.getRecordPage(pageId, table);
+        this.currentRecordPage = new RecordPageImpl(bufferManager.getPage(pageId), table);
         currentRecordPage.pin();
     }
 
@@ -97,7 +98,7 @@ public class WhereCursor implements Cursor {
         if (offset >= currentRecordPage.getRecordCount()) {
             currentRecordPage.unpin();
             try {
-                currentRecordPage = bufferManager.getRecordPage(currentRecordPage.getNextPageId(), table);
+                currentRecordPage = new RecordPageImpl(bufferManager.getPage(pageId), table);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -112,7 +113,7 @@ public class WhereCursor implements Cursor {
             if (offset >= currentRecordPage.getRecordCount()) {
                 currentRecordPage.unpin();
                 try {
-                    currentRecordPage = bufferManager.getRecordPage(currentRecordPage.getNextPageId(), table);
+                    currentRecordPage = new RecordPageImpl(bufferManager.getPage(pageId), table);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
