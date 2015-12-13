@@ -131,6 +131,20 @@ public class RecordPageImpl implements RecordPage {
         return new Record(values);
     }
 
+    @Override
+    public Record getRecordByAbsolutePosition(Integer num){
+        if(getBitSet().get(num)){
+            int position = num*table.getRecordSize();
+            page.getByteBuffer().position(position);
+            Map<Column, Object> values = new HashMap<>(table.getColumns().size());
+            for (Column column : table.getColumns()) {
+                values.put(column, column.getDataType().getFromPage(this));
+            }
+            return new Record(values);
+        }
+        return null;
+    }
+
     /**
      * return absolute number of record
      * in bitset can be free record

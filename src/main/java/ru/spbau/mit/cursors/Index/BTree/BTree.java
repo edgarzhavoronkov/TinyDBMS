@@ -14,8 +14,16 @@ public class BTree {
         root = new LeafNode();
     }
 
+    public BTree(int pageId) throws IOException {
+        root = Node.getNode(pageId);
+    }
+
+    public Node getRoot(){
+        return root;
+    }
+
     public void insert(int key, LeafEntry e) throws IOException {
-        LeafNode leaf = getPotentialLeaf(key);
+        LeafNode leaf = find(key);
         leaf.insertKey(key, e);
         if (leaf.isFull()) {
             Node tmp = leaf.resolveOversize();
@@ -25,17 +33,8 @@ public class BTree {
         }
     }
 
-    public LeafNode find(int key) throws IOException {
-        LeafNode leaf = getPotentialLeaf(key);
-        int index = leaf.find(key);
-        if (index == -1) {
-            return null;
-        }
-        return leaf;
-    }
-
     public void delete(int key) throws IOException {
-        LeafNode leaf = getPotentialLeaf(key);
+        LeafNode leaf = find(key);
         if (leaf.delete(key) && leaf.isTooEmpty()) {
             Node tmp = leaf.resolveUnderflow();
             if (tmp != null) {
@@ -44,7 +43,7 @@ public class BTree {
         }
     }
 
-    private LeafNode getPotentialLeaf(int key) throws IOException {
+    public LeafNode find(int key) throws IOException {
         Node node = root;
         while (!node.isLeaf()) {
             node = ((InnerNode) node).getChild(node.find(key));

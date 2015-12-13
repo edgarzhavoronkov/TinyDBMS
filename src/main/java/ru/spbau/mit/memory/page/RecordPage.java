@@ -18,6 +18,8 @@ public interface RecordPage extends BasePage {
     //todo (low) better table inference implementation
     void setTable(Table table);
 
+    Record getRecordByAbsolutePosition(Integer num);
+
     void removeRecord(Integer num);
 
     LeafEntry putRecord(Record record);

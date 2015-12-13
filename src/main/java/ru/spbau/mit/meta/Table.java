@@ -65,4 +65,9 @@ public class Table {
     public void setFirstFreePageId(int firstFreePageId) {
         this.firstFreePageId = firstFreePageId;
     }
+
+    public Integer getIndexRootPageIdForColumn(Column c){
+        //TODO save/load indexes for columns
+        return 0;
+    }
 }
