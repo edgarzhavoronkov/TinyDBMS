@@ -26,5 +26,7 @@ public interface NodePage extends BasePage {
 
     void setParentNodePageId(Integer parentNodePageId);
 
-    Integer[] getKeys();
+    Integer getKeyAt(int index);
+
+    void setKeyAt(int index, Integer value);
 }

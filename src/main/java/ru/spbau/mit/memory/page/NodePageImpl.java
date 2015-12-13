@@ -172,6 +172,17 @@ public class NodePageImpl implements NodePage {
     }
 
     @Override
+    public Integer getKeyAt(int index) {
+        assert (index < getSize());
+        return getKeys()[index];
+    }
+
+    @Override
+    public void setKeyAt(int index, Integer value) {
+        assert (index < getSize());
+        getKeys()[index] = value;
+    }
+
     public Integer[] getKeys() {
         if (keys == null) {
             keys = new Integer[KEYS_CAPACITY];
