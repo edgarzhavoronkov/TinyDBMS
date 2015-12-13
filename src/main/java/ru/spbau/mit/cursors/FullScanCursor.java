@@ -26,6 +26,18 @@ public class FullScanCursor implements Cursor {
         return currentRecord;
     }
 
+    public Integer getPageId() {
+        return pageId;
+    }
+
+    public Integer getOffset() {
+        return offset;
+    }
+
+    public BufferManager getBufferManager() {
+        return bufferManager;
+    }
+
     @Override
     public Table getTable() {
         return table;

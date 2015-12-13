@@ -2,6 +2,7 @@ package ru.spbau.mit.controllers;
 
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.expression.DoubleValue;
+import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.LongValue;
 import net.sf.jsqlparser.expression.StringValue;
 import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
@@ -43,22 +44,12 @@ public class SelectController implements QueryController {
                 throw new SQLParserException("Not a select statement: ", statement);
             }
             PlainSelect plainSelect = (PlainSelect)(((Select) statement).getSelectBody());
+            Expression whereExpression = plainSelect.getWhere();
             String tableName = ((net.sf.jsqlparser.schema.Table)plainSelect.getFromItem()).getName();
             Table table = TableFactory.getTable(tableName);
             if(plainSelect.getSelectItems().get(0) instanceof AllColumns) {
-                if (plainSelect.getWhere() != null) {
-                    String columnName = ((Column)(((EqualsTo)plainSelect.getWhere()).getLeftExpression())).getColumnName();
-                    Object value;
-                    if (((EqualsTo)plainSelect.getWhere()).getRightExpression() instanceof LongValue) {
-                        value = new Long(((LongValue)((EqualsTo)plainSelect.getWhere()).getRightExpression()).getValue()).intValue();
-                    } else if (((EqualsTo)plainSelect.getWhere()).getRightExpression() instanceof DoubleValue) {
-                        value = ((DoubleValue)((EqualsTo)plainSelect.getWhere()).getRightExpression()).getValue();
-                    } else if (((EqualsTo)plainSelect.getWhere()).getRightExpression() instanceof StringValue) {
-                        value = ((StringValue)((EqualsTo)plainSelect.getWhere()).getRightExpression()).getValue();
-                    } else {
-                        throw new SQLParserException("Data type does not match column data type!");
-                    }
-                    Cursor cursor = new WhereCursor(bufferManager, table, table.getFirstPageId(), 0, columnName, value);
+                if (whereExpression != null) {
+                    Cursor cursor = new WhereCursor(bufferManager, table, table.getFirstPageId(), 0, whereExpression);
                     return new QueryResponse(QueryResponse.Status.OK, cursor);
                 }
                 Cursor cursor = new FullScanCursor(bufferManager, table, table.getFirstPageId(), 0);
