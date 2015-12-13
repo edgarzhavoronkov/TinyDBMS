@@ -10,7 +10,6 @@ import java.io.IOException;
  * Created by gellm_000 on 06.12.2015.
  */
 public class LeafNode extends Node {
-    private LeafNodePage nodePage;
 
     public LeafNode() throws IOException {
         super();
@@ -19,6 +18,7 @@ public class LeafNode extends Node {
         nodePage.setLeftNodePageId(null);
         nodePage.setRightNodePageId(null);
         nodePage.setParentNodePageId(null);
+        nodePage.setIsLeaf(true);
         //TODO check if filled with NULL
     }
 
@@ -28,11 +28,11 @@ public class LeafNode extends Node {
     }
 
     public LeafEntry getEntryAt(int index) {
-        return nodePage.getEntryAt(index);
+        return ((LeafNodePage) nodePage).getEntryAt(index);
     }
 
     public void setEntryAt(int index, LeafEntry e) {
-        nodePage.setEntryAt(index, e);
+        ((LeafNodePage) nodePage).setEntryAt(index, e);
     }
 
     @Override

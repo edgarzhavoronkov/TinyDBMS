@@ -14,6 +14,7 @@ public class LeafNodePageImpl extends NodePageImpl implements LeafNodePage {
     public LeafNodePageImpl(BasePage basePage) {
         super(basePage);
         ((BasePageImpl) basePage).setAfterClose(this::flush);
+        makeDirty();
     }
 
     @Override
@@ -49,6 +50,7 @@ public class LeafNodePageImpl extends NodePageImpl implements LeafNodePage {
     @Override
     public void setEntryAt(int index, LeafEntry leafEntry) {
         assert (index < getSize());
+        makeDirty();
         getEntries()[index] = leafEntry;
     }
 

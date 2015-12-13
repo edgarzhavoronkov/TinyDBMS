@@ -1,9 +1,7 @@
 package ru.spbau.mit.cursors.Index.BTree;
 
 
-//import com.sun.istack.internal.Nullable;
 
-import com.sun.istack.internal.Nullable;
 import ru.spbau.mit.QueryHandler;
 import ru.spbau.mit.memory.page.*;
 
@@ -12,7 +10,7 @@ import java.io.IOException;
 /**
  * Created by gellm_000 on 06.12.2015.
  */
-abstract class Node {
+public abstract class Node {
     protected NodePage nodePage;
 
     protected Node() {
@@ -75,7 +73,7 @@ abstract class Node {
         setParentNodePageId(parent.getPageId());
     }
 
-    @Nullable
+
     public Integer getLeftNodePageId() throws IOException {
         if (nodePage.getLeftNodePageId() == null) {
             return null;
@@ -88,7 +86,7 @@ abstract class Node {
         return nodePage.getLeftNodePageId();
     }
 
-    @Nullable
+
     public Node getLeftNode() throws IOException {
         if (getLeftNodePageId() == null) {
             return null;
@@ -105,7 +103,7 @@ abstract class Node {
         setLeftNodePageId(left.getPageId());
     }
 
-    @Nullable
+
     public Integer getRightNodePageId() throws IOException {
         if (nodePage.getRightNodePageId() == null) {
             return null;
@@ -118,7 +116,7 @@ abstract class Node {
         return nodePage.getRightNodePageId();
     }
 
-    @Nullable
+
     public Node getRightNode() throws IOException {
         if (getRightNodePageId() == null) {
             return null;
@@ -191,7 +189,7 @@ abstract class Node {
 
     protected abstract Integer getKeyFromSibling(int separationKey, Node sibling, int donationIndex) throws IOException;
 
-    @Nullable
+
     public Node resolveUnderflow() throws IOException {
         if (getParentNodePageID() == null) {
             return null;

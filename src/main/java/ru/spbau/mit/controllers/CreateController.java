@@ -14,6 +14,7 @@ import ru.spbau.mit.meta.Table;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -71,7 +72,7 @@ public class CreateController implements QueryController {
         try {
             RecordPage firstFreeRecordPage = new RecordPageImpl(bufferManager.getFirstFreePage(), null);
             firstFreeRecordPage.setNextPageId(-1);
-            Table table = new Table(tableName, firstFreeRecordPage.getId(), firstFreeRecordPage.getId(), columns);
+            Table table = new Table(tableName, firstFreeRecordPage.getId(), firstFreeRecordPage.getId(), columns, new HashMap<>());
             firstFreeRecordPage.setTable(table);
             TableFactory.addTable(table);
             return new QueryResponse(QueryResponse.Status.OK, 0);

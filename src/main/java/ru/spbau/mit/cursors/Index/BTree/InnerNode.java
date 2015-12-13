@@ -22,6 +22,7 @@ public class InnerNode extends Node {
         nodePage.setLeftNodePageId(null);
         nodePage.setRightNodePageId(null);
         nodePage.setParentNodePageId(null);
+        nodePage.setIsLeaf(false);
         //now created in page
 //        keys = new Integer[INNERCAPACITY + 1];
 //        children = new Integer[INNERCAPACITY + 2];

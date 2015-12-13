@@ -151,7 +151,8 @@ public class RecordPageImpl implements RecordPage {
      * @param num of busy record
      * @return absolute number of record
      */
-    private int getAbsRecordNum(int num) {
+    @Override
+    public int getAbsRecordNum(int num) {
         int cur = 0;
         int i;
 

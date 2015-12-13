@@ -1,6 +1,5 @@
 package ru.spbau.mit.meta;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -17,13 +16,19 @@ public class Table {
 
     private List<Column> columns;
 
+    /**
+     * store column - first index page
+     */
+    private Map<Column, Integer> indexedColumns;
+
     private int recordSize = 0;
 
-    public Table(String name, int firstPageId, int firstFreePageId, List<Column> columns) {
+    public Table(String name, int firstPageId, int firstFreePageId, List<Column> columns, Map<Column, Integer> indexedColumns) {
         this.name = name;
         this.firstPageId = firstPageId;
         this.firstFreePageId = firstFreePageId;
         this.columns = columns;
+        this.indexedColumns = indexedColumns;
 
         for (Column column : columns) {
             recordSize += column.getDataType().getSize();
@@ -66,8 +71,15 @@ public class Table {
         this.firstFreePageId = firstFreePageId;
     }
 
-    public Integer getIndexRootPageIdForColumn(Column c){
-        //TODO save/load indexes for columns
-        return 0;
+    public Map<Column, Integer> getIndexedColumns() {
+        return indexedColumns;
+    }
+
+    public void setIndexedColumns(Map<Column, Integer> indexedColumns) {
+        this.indexedColumns = indexedColumns;
+    }
+
+    public Integer getIndexRootPageIdForColumn(Column column) {
+        return indexedColumns.get(column);
     }
 }

@@ -107,6 +107,7 @@ public class NodePageImpl implements NodePage {
 
     @Override
     public void setIsLeaf(boolean isLeaf) {
+        makeDirty();
         this.isLeaf = isLeaf;
     }
 
@@ -120,6 +121,7 @@ public class NodePageImpl implements NodePage {
 
     @Override
     public void setSize(int size) {
+        makeDirty();
         this.size = size;
     }
 
@@ -133,6 +135,7 @@ public class NodePageImpl implements NodePage {
 
     @Override
     public void setLeftNodePageId(Integer leftNodePageId) {
+        makeDirty();
         if (leftNodePageId == null) {
             leftNodePageId = NULL_PAGE_ID;
         }
@@ -149,6 +152,7 @@ public class NodePageImpl implements NodePage {
 
     @Override
     public void setRightNodePageId(Integer rightNodePageId) {
+        makeDirty();
         if (rightNodePageId == null) {
             rightNodePageId = NULL_PAGE_ID;
         }
@@ -165,6 +169,7 @@ public class NodePageImpl implements NodePage {
 
     @Override
     public void setParentNodePageId(Integer parentNodePageId) {
+        makeDirty();
         if (parentNodePageId == null) {
             parentNodePageId = NULL_PAGE_ID;
         }
@@ -180,6 +185,7 @@ public class NodePageImpl implements NodePage {
     @Override
     public void setKeyAt(int index, Integer value) {
         assert (index < getSize());
+        makeDirty();
         getKeys()[index] = value;
     }
 

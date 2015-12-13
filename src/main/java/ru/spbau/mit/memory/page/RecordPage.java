@@ -20,6 +20,8 @@ public interface RecordPage extends BasePage {
 
     Record getRecordByAbsolutePosition(Integer num);
 
+    int getAbsRecordNum(int num);
+
     void removeRecord(Integer num);
 
     LeafEntry putRecord(Record record);

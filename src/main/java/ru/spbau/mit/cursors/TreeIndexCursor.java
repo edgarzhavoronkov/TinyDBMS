@@ -2,7 +2,6 @@ package ru.spbau.mit.cursors;
 
 import ru.spbau.mit.cursors.Index.BTree.BTree;
 import ru.spbau.mit.cursors.Index.BTree.LeafNode;
-import ru.spbau.mit.cursors.Index.Index;
 import ru.spbau.mit.memory.BufferManager;
 import ru.spbau.mit.memory.Record;
 import ru.spbau.mit.memory.page.RecordPage;

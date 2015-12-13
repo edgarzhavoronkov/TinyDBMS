@@ -9,6 +9,7 @@ public class InnerNodePageImpl extends NodePageImpl implements InnerNodePage {
     public InnerNodePageImpl(BasePage basePage) {
         super(basePage);
         ((BasePageImpl) basePage).setAfterClose(this::flush);
+        makeDirty();
     }
 
     public Integer[] getChildren() {
@@ -31,6 +32,7 @@ public class InnerNodePageImpl extends NodePageImpl implements InnerNodePage {
     @Override
     public void setChildrenAt(int index, Integer children) {
         assert (index < getSize() + 1);
+        makeDirty();
         getChildren()[index] = children;
     }
 

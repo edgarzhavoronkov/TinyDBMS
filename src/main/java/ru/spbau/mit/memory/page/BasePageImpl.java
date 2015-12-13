@@ -92,7 +92,7 @@ public class BasePageImpl implements BasePage {
 
     @Override
     public void flush() {
-        if (beforeClose != null) {
+        if (beforeClose != null && isDirty()) {
             beforeClose.beforeClose();
         }
     }

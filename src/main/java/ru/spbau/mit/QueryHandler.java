@@ -10,15 +10,12 @@ import net.sf.jsqlparser.statement.insert.Insert;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.statement.update.Update;
-import ru.spbau.mit.PropertiesManager;
-import ru.spbau.mit.TableFactory;
 import ru.spbau.mit.controllers.*;
 import ru.spbau.mit.cursors.Cursor;
 import ru.spbau.mit.memory.BufferManager;
 import ru.spbau.mit.memory.Record;
 import ru.spbau.mit.meta.Column;
 import ru.spbau.mit.meta.QueryResponse;
-import ru.spbau.mit.meta.Table;
 
 import java.io.IOException;
 import java.util.Map;
@@ -80,6 +77,7 @@ public class QueryHandler {
         if (response.getStatus() == QueryResponse.Status.OK) {
             Cursor cursor = response.getCursor();
             boolean isFirst = true;
+            //TODO write right cursor iterating (cur record can be null)
             while (cursor.next() != null) {
                 Record currentRecord = cursor.getCurrentRecord();
                 if (isFirst) {

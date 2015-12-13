@@ -6,10 +6,9 @@ import ru.spbau.mit.meta.Column;
 import ru.spbau.mit.meta.DataType;
 import ru.spbau.mit.meta.Table;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Objects;
+import java.util.HashMap;
 
 /**
  * Created by John on 10/2/2015.
@@ -22,7 +21,7 @@ public class TableFactoryTest {
         columns.add(new Column("col1", DataType.DOUBLE));
         columns.add(new Column("col2", DataType.VARCHAR));
         columns.add(new Column("col3", DataType.INTEGER));
-        Table table = new Table("tableName", 0, 0, columns);
+        Table table = new Table("tableName", 0, 0, columns, new HashMap<>());
         TableFactory.addTable(table);
     }
 
