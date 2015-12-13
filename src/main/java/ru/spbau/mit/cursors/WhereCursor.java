@@ -108,7 +108,7 @@ public class WhereCursor implements Cursor {
         if (offset >= currentRecordPage.getRecordCount()) {
             currentRecordPage.unpin();
             try {
-                currentRecordPage = new RecordPageImpl(bufferManager.getPage(pageId), table);
+                currentRecordPage = new RecordPageImpl(bufferManager.getPage(currentRecordPage.getNextPageId()), table);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -123,7 +123,7 @@ public class WhereCursor implements Cursor {
             if (offset >= currentRecordPage.getRecordCount()) {
                 currentRecordPage.unpin();
                 try {
-                    currentRecordPage = new RecordPageImpl(bufferManager.getPage(pageId), table);
+                    currentRecordPage = new RecordPageImpl(bufferManager.getPage(currentRecordPage.getNextPageId()), table);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
