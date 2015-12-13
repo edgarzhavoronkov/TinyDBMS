@@ -15,6 +15,8 @@ public class Column {
         this.dataType = dataType;
     }
 
+    public void setName(String name) { this.name = name; }
+
     public Integer getSize() {
         return size;
     }

@@ -50,7 +50,8 @@ public class SelectController implements QueryController {
             Table table = TableFactory.getTable(tableName);
             if(plainSelect.getSelectItems().get(0) instanceof AllColumns) {
                 if (whereExpression != null) {
-                    Cursor cursor = new WhereCursor(bufferManager, table, table.getFirstPageId(), 0, whereExpression);
+                    Cursor innerCursor = new FullScanCursor(bufferManager, table, table.getFirstPageId(), 0);
+                    Cursor cursor = new WhereCursor(innerCursor, whereExpression);
                     return new QueryResponse(QueryResponse.Status.OK, cursor);
                 }
                 Cursor cursor = new FullScanCursor(bufferManager, table, table.getFirstPageId(), 0);

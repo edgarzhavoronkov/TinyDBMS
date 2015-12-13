@@ -16,6 +16,7 @@ import ru.spbau.mit.meta.Table;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
@@ -25,29 +26,17 @@ import java.util.function.Predicate;
  */
 public class WhereCursor implements Cursor {
     private final Table table;
-    private Integer pageId, offset;
-    private RecordPage currentRecordPage = null;
     private final BufferManager bufferManager;
-    private final List<Column> fields;
     private Record currentRecord;
+    private Cursor innerCursor;
     private Expression whereExpression;
 
-    public WhereCursor(BufferManager bufferManager, Table table, Integer pageId, Integer offset, Expression whereExpression) throws IOException {
-        this(bufferManager, table);
-        this.pageId = pageId;
-        this.offset = offset;
-        this.whereExpression = whereExpression;
-        initiateCursor(pageId, offset);
-    }
-
-    public WhereCursor(BufferManager bufferManager, Table table) {
-        this.table = table;
-        fields = new ArrayList<>(table.getColumns());
-        this.bufferManager = bufferManager;
-    }
 
     public WhereCursor(Cursor cursor, Expression whereExpression) throws IOException {
-        this(cursor.getBufferManager(), cursor.getTable(), cursor.getPageId(), cursor.getOffset(), whereExpression);
+        this.innerCursor = cursor;
+        this.whereExpression = whereExpression;
+        this.table = innerCursor.getTable();
+        this.bufferManager = innerCursor.getBufferManager();
     }
 
     @Override
@@ -65,20 +54,11 @@ public class WhereCursor implements Cursor {
         return table;
     }
 
-    @Override
-    public Integer getPageId() {
-        return pageId;
-    }
-
-    @Override
-    public Integer getOffset() {
-        return offset;
-    }
 
     @Override
     public Cursor clone() {
         try {
-            return new WhereCursor(getBufferManager(), getTable(), getPageId(), getOffset(), whereExpression);
+            return new WhereCursor(innerCursor.clone(), whereExpression);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -86,57 +66,36 @@ public class WhereCursor implements Cursor {
     }
 
     @Override
-    public void initiateCursor(Integer pageId, Integer offset) throws IOException {
-        this.pageId = pageId;
-        this.offset = offset;
-        start();
-    }
-
-    private void start() throws IOException {
-        this.currentRecordPage = new RecordPageImpl(bufferManager.getPage(pageId), table);
-        currentRecordPage.pin();
-    }
+    public void initiateCursor(Integer pageId, Integer offset) throws IOException {  }
 
     @Override
     public boolean hasNext() {
-        return (offset < currentRecordPage.getRecordCount() || currentRecordPage.hasNext());
+        currentRecord = (Record) innerCursor.next();
+        while (innerCursor.hasNext() && !match(currentRecord, whereExpression)) {
+            currentRecord = (Record) innerCursor.next();
+        }
+        return innerCursor.hasNext();
     }
 
     @Override
     public Object next() {
-        if (!hasNext()) return null;
-        if (offset >= currentRecordPage.getRecordCount()) {
-            currentRecordPage.unpin();
-            try {
-                currentRecordPage = new RecordPageImpl(bufferManager.getPage(currentRecordPage.getNextPageId()), table);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            currentRecordPage.pin();
-            offset = 0;
+        //TODO: rewrite!!!
+        if (currentRecord == null) {
+            currentRecord = new Record(new HashMap<>());
         }
-        currentRecord = currentRecordPage.getRecord(offset);
-        offset++;
-        while (!match(currentRecord, whereExpression))
-        {
-            if (!hasNext()) return null;
-            if (offset >= currentRecordPage.getRecordCount()) {
-                currentRecordPage.unpin();
-                try {
-                    currentRecordPage = new RecordPageImpl(bufferManager.getPage(currentRecordPage.getNextPageId()), table);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                currentRecordPage.pin();
-                offset = 0;
-            }
-            currentRecord = currentRecordPage.getRecord(offset);
-            offset++;
+        if (!hasNext()) {
+            return null;
         }
         return currentRecord;
     }
 
     private boolean match(Record record, Expression expression) {
+        if (record == null) {
+            return false;
+        }
+        if (expression == null) {
+            return true;
+        }
         if (expression instanceof OrExpression) {
             return match(record, ((OrExpression) expression).getLeftExpression())
                     ||
