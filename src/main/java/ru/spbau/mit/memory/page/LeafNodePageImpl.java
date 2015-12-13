@@ -42,11 +42,13 @@ public class LeafNodePageImpl extends NodePageImpl implements LeafNodePage {
 
     @Override
     public LeafEntry getEntryAt(int index) {
+        assert (index < getSize());
         return getEntries()[index];
     }
 
     @Override
     public void setEntryAt(int index, LeafEntry leafEntry) {
+        assert (index < getSize());
         getEntries()[index] = leafEntry;
     }
 

@@ -1,31 +1,37 @@
 package ru.spbau.mit.cursors.Index.BTree;
 
+import ru.spbau.mit.QueryHandler;
 import ru.spbau.mit.memory.page.LeafNodePage;
+import ru.spbau.mit.memory.page.LeafNodePageImpl;
 
 import java.io.IOException;
 
 /**
  * Created by gellm_000 on 06.12.2015.
  */
-public class LeafNode extends Node{
+public class LeafNode extends Node {
     private LeafNodePage nodePage;
 
     public LeafNode() throws IOException {
         super();
-        nodePage = (LeafNodePage) super.nodePage; //same page
+        nodePage = new LeafNodePageImpl(QueryHandler.bufferManager.getFirstFreePage());
+        nodePage.setSize(0);
+        nodePage.setLeftNodePageId(null);
+        nodePage.setRightNodePageId(null);
+        nodePage.setParentNodePageId(null);
         //TODO check if filled with NULL
     }
 
-    public LeafNode(Integer pageId) throws IOException {
-        super(pageId);
-        nodePage = (LeafNodePage) super.nodePage; //same page
+    public LeafNode(LeafNodePage page) {
+        super();
+        nodePage = page;
     }
 
-    public LeafEntry getEntryAt(int index){
+    public LeafEntry getEntryAt(int index) {
         return nodePage.getEntryAt(index);
     }
 
-    public void setEntryAt(int index, LeafEntry e){
+    public void setEntryAt(int index, LeafEntry e) {
         nodePage.setEntryAt(index, e);
     }
 
@@ -37,10 +43,10 @@ public class LeafNode extends Node{
     @Override
     public int find(int key) {
         for (int i = 0; i < getSize(); i++) {
-            if(getKeyAt(i) == key){
+            if (getKeyAt(i) == key) {
                 return i;
             }
-            if(getKeyAt(i) > key){
+            if (getKeyAt(i) > key) {
                 return -1;
             }
         }
@@ -49,7 +55,7 @@ public class LeafNode extends Node{
 
     @Override
     protected Node split() throws IOException {
-        int m = getSize()/2;
+        int m = getSize() / 2;
 
         //TODO instantiation ???
         LeafNode newRightNode = new LeafNode();
@@ -80,17 +86,17 @@ public class LeafNode extends Node{
     }
 
     @Override
-    protected void FuseWithSibling(int separationKey, Node rightNode) {
-        LeafNode Leaf = (LeafNode)rightNode;
+    protected void FuseWithSibling(int separationKey, Node rightNode) throws IOException {
+        LeafNode Leaf = (LeafNode) rightNode;
         int initialSize = getSize();
-        for(int i = 0; i < Leaf.getSize(); i++){
+        for (int i = 0; i < Leaf.getSize(); i++) {
             setKeyAt(initialSize + i, Leaf.getKeyAt(i));
             setEntryAt(initialSize + i, Leaf.getEntryAt(i));
         }
         setSize(getSize() + Leaf.getSize());
 
         setRightNode(Leaf.getRightNode());
-        if(getRightNode() != null){
+        if (getRightNode() != null) {
             getRightNode().setLeftNode(this);
         }
 
@@ -103,26 +109,26 @@ public class LeafNode extends Node{
         LeafNode Leaf = (LeafNode) sibling;
         insertKey(Leaf.getKeyAt(donationIndex), Leaf.getEntryAt(donationIndex));
         Leaf.deleteAt(donationIndex);
-        if(donationIndex == 0){
+        if (donationIndex == 0) {
             return Leaf.getKeyAt(0);
         }
         return getKeyAt(0);
     }
 
-    public void insertKey(int key, LeafEntry entry){
+    public void insertKey(int key, LeafEntry entry) {
         int index = 0;
-        for(index = 0; index < getSize(); index ++ ){
-            if(getKeyAt(index) >= key){
+        for (; index < getSize(); index++) {
+            if (getKeyAt(index) >= key) {
                 break;
             }
         }
         insertAt(index, key, entry);
     }
 
-    private void insertAt(int index, int key, LeafEntry entry){
+    private void insertAt(int index, int key, LeafEntry entry) {
         for (int i = getSize(); i > index; i--) {
-            setKeyAt(i, getKeyAt(i-1));
-            setEntryAt(i, getEntryAt(i-1));
+            setKeyAt(i, getKeyAt(i - 1));
+            setEntryAt(i, getEntryAt(i - 1));
         }
 
         setKeyAt(index, key);
@@ -130,15 +136,15 @@ public class LeafNode extends Node{
         setSize(getSize() + 1);
     }
 
-    public boolean delete(int key){
+    public boolean delete(int key) {
         return deleteAt(find(key));
     }
 
-    public boolean deleteAt(int index){
-        if(index == -1){
+    public boolean deleteAt(int index) {
+        if (index == -1) {
             return false;
         }
-        for(int i = index; i < getSize()-1; i++){
+        for (int i = index; i < getSize() - 1; i++) {
             setKeyAt(i, getKeyAt(i + 1));
             setEntryAt(i, getEntryAt(i + 1));
         }
