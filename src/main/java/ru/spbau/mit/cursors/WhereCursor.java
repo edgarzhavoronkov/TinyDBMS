@@ -76,6 +76,16 @@ public class WhereCursor implements Cursor {
     }
 
     @Override
+    public Cursor clone() {
+        try {
+            return new WhereCursor(getBufferManager(), getTable(), getPageId(), getOffset(), whereExpression);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
     public void initiateCursor(Integer pageId, Integer offset) throws IOException {
         this.pageId = pageId;
         this.offset = offset;
@@ -136,25 +146,38 @@ public class WhereCursor implements Cursor {
                     &&
                     match(record, ((AndExpression) expression).getRightExpression());
         } else if (expression instanceof GreaterThan) {
-            return directCompare(record, expression, (compareToResult) -> compareToResult > 0);
+            return directCompare(record,
+                    ((GreaterThan)expression).getLeftExpression(),
+                    ((GreaterThan)expression).getRightExpression(),
+                    (compareToResult) -> compareToResult > 0);
         } else if (expression instanceof MinorThan) {
-            return directCompare(record, expression, (compareToResult) -> compareToResult < 0);
+            return directCompare(record,
+                    ((MinorThan) expression).getLeftExpression(),
+                    ((MinorThan) expression).getRightExpression(),
+                    (compareToResult) -> compareToResult < 0);
         } else if (expression instanceof GreaterThanEquals) {
-            return directCompare(record, expression, (compareToResult) -> compareToResult >= 0);
+            return directCompare(record,
+                    ((GreaterThanEquals) expression).getLeftExpression(),
+                    ((GreaterThanEquals) expression).getRightExpression(),
+                    (compareToResult) -> compareToResult >= 0);
         } else if (expression instanceof MinorThanEquals) {
-            return directCompare(record, expression, (compareToResult) -> compareToResult <= 0);
+            return directCompare(record,
+                    ((MinorThanEquals) expression).getLeftExpression(),
+                    ((MinorThanEquals) expression).getRightExpression(),
+                    (compareToResult) -> compareToResult <= 0);
         } else if (expression instanceof EqualsTo) {
-            return directCompare(record, expression, (compareToResult) -> compareToResult == 0);
+            return directCompare(record,
+                    ((EqualsTo) expression).getLeftExpression(),
+                    ((EqualsTo) expression).getRightExpression(),
+                    (compareToResult) -> compareToResult == 0);
         }
         return false;
     }
 
-    //TODO: xtract tablenames e.g t1.id -> (t1, id)
-    private boolean directCompare(Record record, Expression expression, Predicate<Integer> comparator) {
-        Expression lhs = ((GreaterThanEquals) expression).getLeftExpression();
-        Expression rhs = ((GreaterThanEquals) expression).getRightExpression();
-        if (lhs instanceof Column) {
-            Object value = getValueFromColumn(record, (Column) lhs);
+    private boolean directCompare(Record record, Expression lhs, Expression rhs, Predicate<Integer> comparator) {
+        if (lhs instanceof net.sf.jsqlparser.schema.Column) {
+
+            Object value = getValueFromColumn(record, ((net.sf.jsqlparser.schema.Column) lhs).getColumnName());
             if (rhs instanceof LongValue) {
                 Integer lhs_value = (Integer) value;
                 Integer rhs_value = new Long(((LongValue) rhs).getValue()).intValue();
@@ -177,10 +200,8 @@ public class WhereCursor implements Cursor {
         return false;
     }
 
-    private Object getValueFromColumn(Record record, Column column) {
-        String columnName;
+    private Object getValueFromColumn(Record record, String columnName) {
         Object value = null;
-        columnName = column.getName();
         for (Map.Entry<Column, Object> entry : record.getValues().entrySet()) {
             if (entry.getKey().getName().equals(columnName)) {
                 value = entry.getValue();
