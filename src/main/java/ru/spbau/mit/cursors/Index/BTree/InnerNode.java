@@ -38,12 +38,12 @@ public class InnerNode extends Node {
 
     public Node getChild(int index) throws IOException {
         //todo null in children array?
-        if (getChildPageAt(index) == null) {
+        if (getChildPageAt(getChildPageAt(index)) == null) {
             return null;
         }
         // TODO add construction getChildPageAt(index)
 
-        return getNode(index);
+        return getNode(getChildPageAt(index));
 
     }
 
