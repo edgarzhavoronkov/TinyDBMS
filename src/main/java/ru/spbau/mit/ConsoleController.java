@@ -5,6 +5,7 @@ import net.sf.jsqlparser.JSQLParserException;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Random;
 
 import static ru.spbau.mit.QueryHandler.*;
 
@@ -33,22 +34,24 @@ public class ConsoleController {
         StringBuilder command = new StringBuilder();
         BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
 
-//        String cmd1 = "create table t1 (id INT, df DOUBLE)";
-//        queryHandler(cmd1);
-//        System.out.println(runTestInsert(10_000));
-//        cmd1 = "create index index1 on t1(id)";
-//        queryHandler(cmd1);
+        String cmd1 = "create table t1 (id INT, df DOUBLE)";
+        queryHandler(cmd1);
+        System.out.println(runRandomIntegerTestInsert(10_000));
+        cmd1 = "create index index1 on t1(id)";
+        queryHandler(cmd1);
 
-        while (true) {
-            String line = input.readLine();
-            if (line.length() == 0 && command.length() > 0) {
-                queryHandler(command.toString());
-                command = new StringBuilder();
-            }
+        queryHandler("select * from t1");
 
-            if (line.toLowerCase().trim().equals("quit")) break;
-            command.append(line).append('\n');
-        }
+//        while (true) {
+//            String line = input.readLine();
+//            if (line.length() == 0 && command.length() > 0) {
+//                queryHandler(command.toString());
+//                command = new StringBuilder();
+//            }
+//
+//            if (line.toLowerCase().trim().equals("quit")) break;
+//            command.append(line).append('\n');
+//        }
 
         //create index index1 on t1(id)
 
@@ -63,6 +66,19 @@ public class ConsoleController {
         long startTime = System.currentTimeMillis();
         for (int i = 0; i < insertTime; i++) {
             String cmd = String.format("INSERT INTO t1 (id, df) VALUES (%d, %f)", i, Math.random());
+            if (i % 10_000 == 0) {
+                System.out.println(String.format("Insert %d rows", i));
+            }
+            queryFastHandler(cmd);
+        }
+        return (System.currentTimeMillis() - startTime);
+    }
+
+    private static long runRandomIntegerTestInsert(int insertTime) throws IOException, JSQLParserException {
+        long startTime = System.currentTimeMillis();
+        Random random = new Random();
+        for (int i = 0; i < insertTime; i++) {
+            String cmd = String.format("INSERT INTO t1 (id, df) VALUES (%d, %f)", random.nextInt(), Math.random());
             if (i % 10_000 == 0) {
                 System.out.println(String.format("Insert %d rows", i));
             }
