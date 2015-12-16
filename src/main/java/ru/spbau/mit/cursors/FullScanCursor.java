@@ -35,7 +35,7 @@ public class FullScanCursor implements Cursor {
     }
 
     public Integer getPageId() {
-        return pageId;
+        return currentRecordPage.getId();
     }
 
     public Integer getOffset() {

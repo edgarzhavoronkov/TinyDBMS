@@ -33,6 +33,8 @@ public class TreeIndexCursor implements Cursor{
         this.table = table;
 
         currentNode = bTree.find(leftKey);
+
+        position = -1;
         for(int i = 0; i < currentNode.getSize(); i++){
             if(currentNode.getKeyAt(i) >= leftKey){
                 position = i;
@@ -40,7 +42,6 @@ public class TreeIndexCursor implements Cursor{
                 break;
             }
         }
-        position = -1;
     }
 
     @Override

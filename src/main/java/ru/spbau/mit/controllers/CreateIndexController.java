@@ -61,8 +61,6 @@ public class CreateIndexController implements QueryController {
             Column column = maybeColumn.get();
 
             BTree bTree = new BTree();
-            Integer pageId = bTree.getRoot().getPageId();
-            indexTable.getIndexedColumns().put(column.getName(), pageId);
 
             //Full scan, insert all existing value in
             Cursor cursor = new FullScanCursor(bufferManager, indexTable, indexTable.getFirstPageId(), 0);
@@ -79,6 +77,10 @@ public class CreateIndexController implements QueryController {
                         new LeafEntry(cursor.getPageId(), absRecordNum
                         ));
             }
+
+            Integer pageId = bTree.getRoot().getPageId();
+            indexTable.getIndexedColumns().put(column.getName(), pageId);
+
             return new QueryResponse(QueryResponse.Status.OK, 1);
         } catch (SQLParserException e) {
             QueryResponse response = new QueryResponse(QueryResponse.Status.Error, e);

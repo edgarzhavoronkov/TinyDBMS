@@ -50,7 +50,7 @@ public class ConsoleController {
             command.append(line).append('\n');
         }
 
-//        create index index1 on t1(id)
+        //create index index1 on t1(id)
 
 //        String cmd1 = "create table t1 (id INT, df DOUBLE)";
 //        queryHandler(cmd1);
