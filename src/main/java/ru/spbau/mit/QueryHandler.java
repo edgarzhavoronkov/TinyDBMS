@@ -78,8 +78,9 @@ public class QueryHandler {
             Cursor cursor = response.getCursor();
             boolean isFirst = true;
             //TODO write right cursor iterating (cur record can be null)
-            while (cursor.next() != null) {
-                Record currentRecord = cursor.getCurrentRecord();
+            while (cursor.hasNext()) {
+                Record currentRecord = (Record) cursor.next();
+                if (currentRecord == null) continue;
                 if (isFirst) {
                     for (Column column : currentRecord.getValues().keySet()) {
                         System.out.printf("%" + column.getSize() + "s |", column.getName());
