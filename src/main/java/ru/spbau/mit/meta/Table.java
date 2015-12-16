@@ -19,11 +19,11 @@ public class Table {
     /**
      * store column - first index page
      */
-    private Map<Column, Integer> indexedColumns;
+    private Map<String, Integer> indexedColumns;
 
     private int recordSize = 0;
 
-    public Table(String name, int firstPageId, int firstFreePageId, List<Column> columns, Map<Column, Integer> indexedColumns) {
+    public Table(String name, int firstPageId, int firstFreePageId, List<Column> columns, Map<String, Integer> indexedColumns) {
         this.name = name;
         this.firstPageId = firstPageId;
         this.firstFreePageId = firstFreePageId;
@@ -71,15 +71,15 @@ public class Table {
         this.firstFreePageId = firstFreePageId;
     }
 
-    public Map<Column, Integer> getIndexedColumns() {
+    public Map<String, Integer> getIndexedColumns() {
         return indexedColumns;
     }
 
-    public void setIndexedColumns(Map<Column, Integer> indexedColumns) {
+    public void setIndexedColumns(Map<String, Integer> indexedColumns) {
         this.indexedColumns = indexedColumns;
     }
 
     public Integer getIndexRootPageIdForColumn(Column column) {
-        return indexedColumns.get(column);
+        return indexedColumns.get(column.getName());
     }
 }

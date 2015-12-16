@@ -21,6 +21,7 @@ final public class TableFactory {
             String tablePath = folderName + "/" + tableName + ".json";
             BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(tablePath)));
             table = new Gson().fromJson(reader, Table.class);
+            tableMap.put(tableName, table);
         }
         return table;
     }

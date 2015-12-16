@@ -1,13 +1,7 @@
 package ru.spbau.mit.controllers;
 
-import net.sf.jsqlparser.JSQLParserException;
-import net.sf.jsqlparser.expression.DoubleValue;
 import net.sf.jsqlparser.expression.Expression;
-import net.sf.jsqlparser.expression.LongValue;
-import net.sf.jsqlparser.expression.StringValue;
-import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
-import net.sf.jsqlparser.parser.CCJSqlParserManager;
-import net.sf.jsqlparser.schema.Column;
+import net.sf.jsqlparser.expression.operators.relational.OldOracleJoinBinaryExpression;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.select.AllColumns;
 import net.sf.jsqlparser.statement.select.PlainSelect;
@@ -15,14 +9,14 @@ import net.sf.jsqlparser.statement.select.Select;
 import ru.spbau.mit.TableFactory;
 import ru.spbau.mit.cursors.Cursor;
 import ru.spbau.mit.cursors.FullScanCursor;
+import ru.spbau.mit.cursors.TreeIndexCursor;
 import ru.spbau.mit.cursors.WhereCursor;
 import ru.spbau.mit.memory.BufferManager;
+import ru.spbau.mit.meta.Column;
 import ru.spbau.mit.meta.QueryResponse;
 import ru.spbau.mit.meta.Table;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.StringReader;
 
 
 /**
@@ -50,8 +44,43 @@ public class SelectController implements QueryController {
             Table table = TableFactory.getTable(tableName);
             if(plainSelect.getSelectItems().get(0) instanceof AllColumns) {
                 if (whereExpression != null) {
+                    String columnName = ((net.sf.jsqlparser.schema.Column) ((OldOracleJoinBinaryExpression) whereExpression).getLeftExpression()).getColumnName();
+                    Column column = null;
+                    if (table.getIndexedColumns().containsKey(columnName)) {
+                        for (Column column1 : table.getColumns()) {
+                            if (column1.getName().equals(columnName)) {
+                                column = column1;
+                                break;
+                            }
+                        }
+                    }
+
+                    Cursor cursorIndex = null;
+                    if (column != null) {
+                        cursorIndex = new TreeIndexCursor(bufferManager, table, column, 0);
+                    }
+
+
+
                     Cursor innerCursor = new FullScanCursor(bufferManager, table, table.getFirstPageId(), 0);
-                    Cursor cursor = new WhereCursor(innerCursor, whereExpression);
+                    Cursor cursor;
+                    if (cursorIndex != null) {
+                        cursor = new WhereCursor(cursorIndex, whereExpression);
+                    } else {
+                        cursor = new WhereCursor(innerCursor, whereExpression);
+                    }
+//                    Cursor cursor = new WhereCursor(innerCursor, whereExpression);
+//                    ((Column) ((EqualsTo) whereExpression).getLeftExpression()).getColumnName()
+//                    ((Column) ((OldOracleJoinBinaryExpression) whereExpression).getLeftExpression()).getColumnName()
+//                    OldOracleJoinBinaryExpression
+//                    OldOracleJoinBinaryExpression
+                    //select * from t1 where id = 1
+
+//                    Column column = new Column(columnName);
+
+
+
+
                     return new QueryResponse(QueryResponse.Status.OK, cursor);
                 }
                 Cursor cursor = new FullScanCursor(bufferManager, table, table.getFirstPageId(), 0);
@@ -62,4 +91,11 @@ public class SelectController implements QueryController {
             return new QueryResponse(QueryResponse.Status.Error, e);
         }
     }
+
+    private Column getIndexColumn() {
+        return null;
+    }
+
+    ;
+
 }

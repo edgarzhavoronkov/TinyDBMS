@@ -62,7 +62,7 @@ public class CreateIndexController implements QueryController {
 
             BTree bTree = new BTree();
             Integer pageId = bTree.getRoot().getPageId();
-            indexTable.getIndexedColumns().put(column, pageId);
+            indexTable.getIndexedColumns().put(column.getName(), pageId);
 
             //Full scan, insert all existing value in
             Cursor cursor = new FullScanCursor(bufferManager, indexTable, indexTable.getFirstPageId(), 0);

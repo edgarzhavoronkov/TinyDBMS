@@ -33,24 +33,30 @@ public class ConsoleController {
         StringBuilder command = new StringBuilder();
         BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
 
-//        while (true) {
-//            String line = input.readLine();
-//            if(line.length() == 0 && command.length() > 0){
-//                queryHandler(command.toString());
-//                command = new StringBuilder();
-//            }
-//
-//            if (line.toLowerCase().trim().equals("quit")) break;
-//            command.append(line).append('\n');
-//        }
+//        String cmd1 = "create table t1 (id INT, df DOUBLE)";
+//        queryHandler(cmd1);
+//        System.out.println(runTestInsert(10_000));
+//        cmd1 = "create index index1 on t1(id)";
+//        queryHandler(cmd1);
+
+        while (true) {
+            String line = input.readLine();
+            if (line.length() == 0 && command.length() > 0) {
+                queryHandler(command.toString());
+                command = new StringBuilder();
+            }
+
+            if (line.toLowerCase().trim().equals("quit")) break;
+            command.append(line).append('\n');
+        }
 
 //        create index index1 on t1(id)
 
-        String cmd1 = "create table t1 (id INT, df DOUBLE)";
-        queryHandler(cmd1);
-        System.out.println(runTestInsert(10_000));
-        cmd1 = "create index index1 on t1(id)";
-        queryHandler(cmd1);
+//        String cmd1 = "create table t1 (id INT, df DOUBLE)";
+//        queryHandler(cmd1);
+//        System.out.println(runTestInsert(10_000));
+//        cmd1 = "create index index1 on t1(id)";
+//        queryHandler(cmd1);
     }
 
     private static long runTestInsert(int insertTime) throws IOException, JSQLParserException {
