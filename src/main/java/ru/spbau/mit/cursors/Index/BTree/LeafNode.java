@@ -153,4 +153,8 @@ public class LeafNode extends Node {
         setSize(getSize() - 1);
         return true;
     }
+
+    public Integer getRightNodePageId(){
+        return nodePage.getRightNodePageId();
+    }
 }

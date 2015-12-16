@@ -2,6 +2,7 @@ package ru.spbau.mit.cursors;
 
 import ru.spbau.mit.cursors.Index.BTree.BTree;
 import ru.spbau.mit.cursors.Index.BTree.LeafNode;
+import ru.spbau.mit.cursors.Index.BTree.Node;
 import ru.spbau.mit.memory.BufferManager;
 import ru.spbau.mit.memory.Record;
 import ru.spbau.mit.memory.page.RecordPage;
@@ -86,13 +87,9 @@ public class TreeIndexCursor implements Cursor{
     @Override
     public boolean hasNext() {
         boolean isEmpty = (position == -1);
-        try {
-            boolean isLast = (position == currentNode.getSize()) && (currentNode.getRightNode() == null);
-            return !(isEmpty || isLast);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return false;
+        boolean isLast = (position == currentNode.getSize()) && (currentNode.getRightNodePageId() == null);
+        return !(isEmpty || isLast);
+
     }
 
     @Override
@@ -105,7 +102,7 @@ public class TreeIndexCursor implements Cursor{
             currentRecord = page.getRecordByAbsolutePosition(currentNode.getEntryAt(position).getOffset());
             position ++;
             if(position == currentNode.getSize() && (currentNode.getRightNode() != null)){
-                currentNode = (LeafNode) currentNode.getRightNode();
+                currentNode = (LeafNode) Node.getNode(currentNode.getRightNodePageId());
                 position = 0;
             }
             return currentRecord;
