@@ -16,7 +16,7 @@ public class InnerNodePageImpl extends NodePageImpl implements InnerNodePage {
         if (children == null) {
             page.getByteBuffer().position(CHILDREN_OFFSET);
             children = new Integer[CHILDREN_CAPACITY + 1];
-            for (int i = 0; i < getSize() + 1; i++) {
+            for (int i = 0;getSize() > 0 &&  i < getSize() + 1; i++) {
                 children[i] = page.getByteBuffer().getInt();
             }
         }
@@ -39,7 +39,7 @@ public class InnerNodePageImpl extends NodePageImpl implements InnerNodePage {
     @Override
     public void flush() {
         page.getByteBuffer().position(CHILDREN_OFFSET);
-        for (int i = 0; i < getSize() + 1; i++) {
+        for (int i = 0; getSize() > 0 && i < getSize() + 1; i++) {
             page.getByteBuffer().putInt(getChildren()[i]);
         }
         super.flush();

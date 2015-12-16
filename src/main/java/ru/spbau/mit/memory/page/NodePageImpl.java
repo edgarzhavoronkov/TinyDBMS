@@ -26,6 +26,8 @@ public class NodePageImpl implements NodePage {
 
     public NodePageImpl(BasePage basePage) {
         this.page = basePage;
+        int i = 1;
+        i++;
     }
 
     @Override

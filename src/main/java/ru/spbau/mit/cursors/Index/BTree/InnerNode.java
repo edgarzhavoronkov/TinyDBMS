@@ -60,7 +60,7 @@ public class InnerNode extends Node {
             setKeyAt(i, getKeyAt(i - 1));
         }
         for (int i = getSize() + 1; i > index; i--) {
-            setKeyAt(i, getChildPageAt(i - 1));
+            setChildPageAt(i, getChildPageAt(i - 1));
         }
         setKeyAt(index, key);
         setChildPageAt(index, left.getPageId());

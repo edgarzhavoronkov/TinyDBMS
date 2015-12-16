@@ -36,11 +36,11 @@ public class ConsoleController {
 
         String cmd1 = "create table t1 (id INT, df DOUBLE)";
         queryHandler(cmd1);
-        System.out.println(runRandomIntegerTestInsert(10_000));
+        System.out.println(runRandomIntegerTestInsert(1000_000));
         cmd1 = "create index index1 on t1(id)";
         queryHandler(cmd1);
 
-        queryHandler("select * from t1");
+        queryHandler("select * from t1 where id < 50");
 
 //        while (true) {
 //            String line = input.readLine();
@@ -78,11 +78,12 @@ public class ConsoleController {
         long startTime = System.currentTimeMillis();
         Random random = new Random();
         for (int i = 0; i < insertTime; i++) {
-            String cmd = String.format("INSERT INTO t1 (id, df) VALUES (%d, %f)", random.nextInt(), Math.random());
+            String cmd = String.format("INSERT INTO t1 (id, df) VALUES (%d, %f)", random.nextInt()%10000, Math.random());
             if (i % 10_000 == 0) {
                 System.out.println(String.format("Insert %d rows", i));
             }
             queryFastHandler(cmd);
+
         }
         return (System.currentTimeMillis() - startTime);
     }
