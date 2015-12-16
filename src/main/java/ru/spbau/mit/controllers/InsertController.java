@@ -8,6 +8,8 @@ import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.insert.Insert;
 import ru.spbau.mit.TableFactory;
+import ru.spbau.mit.cursors.Index.BTree.BTree;
+import ru.spbau.mit.cursors.Index.BTree.LeafEntry;
 import ru.spbau.mit.memory.BufferManager;
 import ru.spbau.mit.memory.Record;
 import ru.spbau.mit.memory.page.RecordPage;
@@ -21,6 +23,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -57,6 +60,23 @@ public class InsertController implements QueryController {
             }
 
             recordPage.putRecord(record);
+
+            for (String columnName : table.getIndexedColumns().keySet()) {
+                Optional<Column> maybeColumn = table.getColumns().
+                        parallelStream().
+                        findFirst().
+                        filter((column1) -> column1.getName().equals(columnName));
+
+                Column column = maybeColumn.get();
+
+                record.getValues().get(column);
+                BTree bTree = new BTree(table.getIndexedColumns().get(columnName));
+                int absRecordNum = recordPage.getAbsRecordNum(recordPage.getRecordCount() - 1);
+                bTree.insert(
+                        (Integer) record.getValues().get(column),
+                        new LeafEntry(recordPage.getId(), absRecordNum
+                        ));
+            }
 
             return new QueryResponse(QueryResponse.Status.OK, 1);
         } catch (SQLParserException e) {
