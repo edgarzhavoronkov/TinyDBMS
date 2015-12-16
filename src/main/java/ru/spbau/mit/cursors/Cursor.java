@@ -19,6 +19,10 @@ public interface Cursor extends Iterator {
 
     Cursor clone();
 
+    Integer getPageId();
+
+    Integer getOffset();
+
     void initiateCursor(Integer pageId, Integer offset) throws IOException;
 
 

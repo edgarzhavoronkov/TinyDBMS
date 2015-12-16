@@ -2,16 +2,14 @@ package ru.spbau.mit.cursors;
 
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
-import ru.spbau.mit.TableFactory;
-import ru.spbau.mit.controllers.SQLParserException;
 import ru.spbau.mit.memory.BufferManager;
 import ru.spbau.mit.memory.Record;
-import ru.spbau.mit.memory.page.RecordPage;
 import ru.spbau.mit.meta.Column;
 import ru.spbau.mit.meta.Table;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by edgar on 13.12.15.
@@ -52,6 +50,16 @@ public class JoinCursor implements Cursor {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return null;
+    }
+
+    @Override
+    public Integer getPageId() {
+        return null;
+    }
+
+    @Override
+    public Integer getOffset() {
         return null;
     }
 

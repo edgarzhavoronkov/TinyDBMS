@@ -21,8 +21,10 @@ public class TreeIndexCursor implements Cursor{
     private LeafNode currentNode;
     private int position;
     private Record currentRecord;
+    private Column indexColumn;
     public TreeIndexCursor(BufferManager bufferManager, Table table, Column indexColumn,int leftKey) throws IOException {
         Integer indexPageId = table.getIndexRootPageIdForColumn(indexColumn);
+        this.indexColumn = indexColumn;
         if(indexPageId == null){
             throw new UnsupportedOperationException("No index for column: " + indexColumn.getName());
         }
@@ -54,6 +56,17 @@ public class TreeIndexCursor implements Cursor{
     @Override
     public Table getTable() {
         return table;
+    }
+
+    @Override
+    public Cursor clone() {
+        //todo implement
+        try {
+            return new TreeIndexCursor(bufferManager, table, indexColumn, currentNode.getKeyAt(position));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     @Override

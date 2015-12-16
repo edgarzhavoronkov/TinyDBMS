@@ -9,15 +9,11 @@ import net.sf.jsqlparser.expression.operators.conditional.OrExpression;
 import net.sf.jsqlparser.expression.operators.relational.*;
 import ru.spbau.mit.memory.BufferManager;
 import ru.spbau.mit.memory.Record;
-import ru.spbau.mit.memory.page.RecordPage;
-import ru.spbau.mit.memory.page.RecordPageImpl;
 import ru.spbau.mit.meta.Column;
 import ru.spbau.mit.meta.Table;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
@@ -62,6 +58,16 @@ public class WhereCursor implements Cursor {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return null;
+    }
+
+    @Override
+    public Integer getPageId() {
+        return null;
+    }
+
+    @Override
+    public Integer getOffset() {
         return null;
     }
 
