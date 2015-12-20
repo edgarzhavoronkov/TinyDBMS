@@ -3,6 +3,7 @@ package ru.spbau.mit.memory;
 
 import ru.spbau.mit.meta.Column;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -15,6 +16,12 @@ public class Record {
 
     public Record(Map<Column, Object> values) {
         this.values = values;
+    }
+
+    public Record clone() {
+        Map<Column, Object> values_copy = new HashMap<>();
+        values_copy.putAll(values);
+        return new Record(values_copy);
     }
 
     public Map<Column, Object> getValues() {

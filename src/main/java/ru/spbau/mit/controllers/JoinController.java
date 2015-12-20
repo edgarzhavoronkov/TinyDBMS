@@ -3,14 +3,12 @@ package ru.spbau.mit.controllers;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
 import net.sf.jsqlparser.statement.Statement;
+import net.sf.jsqlparser.statement.select.AllColumns;
 import net.sf.jsqlparser.statement.select.Join;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
 import ru.spbau.mit.TableFactory;
-import ru.spbau.mit.cursors.Cursor;
-import ru.spbau.mit.cursors.FullScanCursor;
-import ru.spbau.mit.cursors.JoinCursor;
-import ru.spbau.mit.cursors.WhereCursor;
+import ru.spbau.mit.cursors.*;
 import ru.spbau.mit.memory.BufferManager;
 import ru.spbau.mit.memory.Record;
 import ru.spbau.mit.meta.Table;
@@ -53,9 +51,13 @@ public class JoinController  implements QueryController {
             Table table = TableFactory.getTable(tableName);
             Cursor rightCursor = new FullScanCursor(bufferManager, table, table.getFirstPageId(), 0);
             Cursor joinCursor = new JoinCursor(leftCursor, rightCursor, onExpression);
-
             Cursor whereCursor = new WhereCursor(joinCursor, whereExpression);
-            return new QueryResponse(QueryResponse.Status.OK, whereCursor);
+            if (plainSelect.getSelectItems().get(0) instanceof AllColumns) {
+                return new QueryResponse(QueryResponse.Status.OK, whereCursor);
+            } else {
+                Cursor projectionCursor = new ProjectionCursor(whereCursor, plainSelect.getSelectItems());
+                return new QueryResponse(QueryResponse.Status.OK, projectionCursor);
+            }
         } catch (SQLParserException e) {
             return new QueryResponse(QueryResponse.Status.Error, e);
         }

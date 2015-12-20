@@ -61,6 +61,11 @@ public class WhereCursor implements Cursor {
     }
 
     @Override
+    public void reset() {
+
+    }
+
+    @Override
     public Integer getPageId() {
         return null;
     }

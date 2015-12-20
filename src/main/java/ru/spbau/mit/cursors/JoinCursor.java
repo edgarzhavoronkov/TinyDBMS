@@ -37,7 +37,7 @@ public class JoinCursor implements Cursor {
 
     @Override
     public Table getTable() {
-
+        //TODO: WTF?!
         return null;
     }
 
@@ -51,6 +51,12 @@ public class JoinCursor implements Cursor {
             e.printStackTrace();
         }
         return null;
+    }
+
+    @Override
+    public void reset() {
+        leftCursor.reset();
+        rightCursor.reset();
     }
 
     @Override
@@ -69,20 +75,23 @@ public class JoinCursor implements Cursor {
     @Override
     public boolean hasNext() {
         //TODO: HOW THE FUCK?!
-        return false;
+        return leftCursor.hasNext();
     }
 
     @Override
     public Object next() {
         while (leftCursor.next() != null) {
             Record leftRecord = leftCursor.getCurrentRecord();
-            Cursor rightCursorCopy = rightCursor.clone();
-            while (rightCursorCopy.next() != null) {
-                Record rightRecord = rightCursorCopy.getCurrentRecord();
-                if (match(leftRecord, rightRecord, onExpression)) {
-                    return concatRecords(leftRecord, rightRecord, onExpression);
+            Record leftRecordCopy = leftRecord.clone();
+
+            while (rightCursor.next() != null) {
+                Record rightRecord = rightCursor.getCurrentRecord();
+                Record rightRecordCopy = rightRecord.clone();
+                if (match(leftRecordCopy, rightRecordCopy, onExpression)) {
+                    return concatRecords(leftRecordCopy, rightRecordCopy, onExpression);
                 }
             }
+            rightCursor.reset();
         }
         return null;
     }
@@ -92,27 +101,18 @@ public class JoinCursor implements Cursor {
         if (onExpression instanceof EqualsTo) {
             Expression lhs = ((EqualsTo) onExpression).getLeftExpression();
             Expression rhs = ((EqualsTo) onExpression).getRightExpression();
-            String leftColumnName = ((net.sf.jsqlparser.schema.Column)lhs).getColumnName();
-            String rightColumnName = ((net.sf.jsqlparser.schema.Column)rhs).getColumnName();
-
-            Map<Column, Object> resultRecordMap = new HashMap<>();
+            String leftColumnName = ((net.sf.jsqlparser.schema.Column)lhs).getFullyQualifiedName();
+            String rightColumnName = ((net.sf.jsqlparser.schema.Column)rhs).getFullyQualifiedName();
 
             for (Map.Entry<Column, Object> entry : leftRecord.getValues().entrySet()) {
-                String columnName = entry.getKey().getName();
-                Object value = entry.getValue();
-                if (!columnName.equals(leftColumnName)) {
-                    resultRecordMap.put(entry.getKey(), value);
-                }
-            }
 
-            for (Map.Entry<Column, Object> entry : rightRecord.getValues().entrySet()) {
-                String columnName = entry.getKey().getName();
-                Object value = entry.getValue();
-                if (!columnName.equals(rightColumnName)) {
-                    entry.getKey().setName(entry.getKey().getName() + "1");
-                    resultRecordMap.put(entry.getKey(), value);
-                }
             }
+            Map<Column, Object> resultRecordMap = new HashMap<>();
+
+            resultRecordMap.putAll(leftRecord.getValues());
+            resultRecordMap.putAll(rightRecord.getValues());
+
+
             return new Record(resultRecordMap);
         }
         return null;

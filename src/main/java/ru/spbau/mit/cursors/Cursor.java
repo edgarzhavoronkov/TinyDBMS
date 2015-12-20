@@ -16,8 +16,10 @@ public interface Cursor extends Iterator {
     BufferManager getBufferManager();
 
     Table getTable();
-
+    //TODO: remove - make reset()
     Cursor clone();
+
+    void reset();
 
     Integer getPageId();
 

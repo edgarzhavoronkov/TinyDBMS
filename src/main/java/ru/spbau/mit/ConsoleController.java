@@ -34,13 +34,16 @@ public class ConsoleController {
         StringBuilder command = new StringBuilder();
         BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
 
-        String cmd1 = "create table t1 (id INT, df DOUBLE)";
-        queryHandler(cmd1);
-        System.out.println(runRandomIntegerTestInsert(1000_000));
-        cmd1 = "create index index1 on t1(id)";
-        queryHandler(cmd1);
+//        String cmd1 = "create table t1 (id INT, a DOUBLE)";
+//        queryHandler(cmd1);
+//        String cmd2 = "create table t2 (id INT, b DOUBLE)";
+//        queryHandler(cmd2);
+//        System.out.println(runTestInsert("t1", "a", 100_000));
+//        System.out.println(runTestInsert("t2", "b", 100_000));
+//        queryHandler("select * from t1 where id = 2");
+//        queryHandler("select * from t2 where id < 50");
 
-        queryHandler("select * from t1 where id < 50");
+        queryHandler("select t1.a, t1.b from t1 join t2 on t1.id = t2.id where t1.a > 0.5 and t2.b < 1.0 and t1.id < 2");
 
 //        while (true) {
 //            String line = input.readLine();
@@ -53,19 +56,13 @@ public class ConsoleController {
 //            command.append(line).append('\n');
 //        }
 
-        //create index index1 on t1(id)
 
-//        String cmd1 = "create table t1 (id INT, df DOUBLE)";
-//        queryHandler(cmd1);
-//        System.out.println(runTestInsert(10_000));
-//        cmd1 = "create index index1 on t1(id)";
-//        queryHandler(cmd1);
     }
 
-    private static long runTestInsert(int insertTime) throws IOException, JSQLParserException {
+    private static long runTestInsert(String table_name, String col_name, int insertTime) throws IOException, JSQLParserException {
         long startTime = System.currentTimeMillis();
         for (int i = 0; i < insertTime; i++) {
-            String cmd = String.format("INSERT INTO t1 (id, df) VALUES (%d, %f)", i, Math.random());
+            String cmd = String.format("INSERT INTO %s (id, %s) VALUES (%d, %f)", table_name, col_name, i, Math.random());
             if (i % 10_000 == 0) {
                 System.out.println(String.format("Insert %d rows", i));
             }

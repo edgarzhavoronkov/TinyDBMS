@@ -4,12 +4,9 @@ import ru.spbau.mit.memory.BufferManager;
 import ru.spbau.mit.memory.Record;
 import ru.spbau.mit.memory.page.RecordPage;
 import ru.spbau.mit.memory.page.RecordPageImpl;
-import ru.spbau.mit.meta.Column;
 import ru.spbau.mit.meta.Table;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by gellm_000 on 09.10.2015.
@@ -17,6 +14,7 @@ import java.util.List;
 public class FullScanCursor implements Cursor {
     private final Table table;
     private Integer pageId, offset;
+    private Integer initialPageId, initialOffset;
     private RecordPage currentRecordPage = null;
     private final BufferManager bufferManager;
     private Record currentRecord;
@@ -51,10 +49,18 @@ public class FullScanCursor implements Cursor {
         return null;
     }
 
+    @Override
+    public void reset() {
+        this.pageId = initialPageId;
+        this.offset = initialOffset;
+    }
+
     public FullScanCursor(BufferManager bufferManager, Table table, Integer pageId, Integer offset) throws IOException {
         this(bufferManager, table);
         this.pageId = pageId;
         this.offset = offset;
+        this.initialPageId = pageId;
+        this.initialOffset = offset;
         initiateCursor(pageId, offset);
     }
 

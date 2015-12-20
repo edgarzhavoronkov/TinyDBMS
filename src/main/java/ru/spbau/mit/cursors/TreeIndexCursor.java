@@ -75,6 +75,11 @@ public class TreeIndexCursor implements Cursor{
     }
 
     @Override
+    public void reset() {
+
+    }
+
+    @Override
     public Integer getPageId() {
         return currentNode.getEntryAt(position).getPageId();
     }

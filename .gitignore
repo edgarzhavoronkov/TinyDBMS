@@ -2,4 +2,5 @@
 .idea/
 target/
 data/
+.target/
 config.properties
