@@ -82,4 +82,8 @@ public class Table {
     public Integer getIndexRootPageIdForColumn(Column column) {
         return indexedColumns.get(column.getName());
     }
+
+    public void setIndexRootPageIdForColumn(Column column, Integer rootPageId) {
+        indexedColumns.put(column.getName(), rootPageId);
+    }
 }

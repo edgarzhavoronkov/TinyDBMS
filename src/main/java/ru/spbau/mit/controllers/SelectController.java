@@ -53,26 +53,29 @@ public class SelectController implements QueryController {
             String tableName = ((net.sf.jsqlparser.schema.Table) plainSelect.getFromItem()).getName();
             Table table = TableFactory.getTable(tableName);
             if (plainSelect.getSelectItems().get(0) instanceof AllColumns) {
-                if (whereExpression != null) {
-
-                    Cursor indexCursor = getIndexCursor(whereExpression, table);// null;
-                    Cursor cursor;
-                    if (indexCursor != null) {
-                        cursor = new WhereCursor(indexCursor, whereExpression);
-                    } else {
-                        Cursor innerCursor = new FullScanCursor(bufferManager, table, table.getFirstPageId(), 0);
-                        cursor = new WhereCursor(innerCursor, whereExpression);
-                    }
-
-                    return new QueryResponse(QueryResponse.Status.OK, cursor);
-                }
-                Cursor cursor = new FullScanCursor(bufferManager, table, table.getFirstPageId(), 0);
-                return new QueryResponse(QueryResponse.Status.OK, cursor);
+                return process(whereExpression, table);
             }
             return null;
         } catch (SQLParserException e) {
             return new QueryResponse(QueryResponse.Status.Error, e);
         }
+    }
+
+    public QueryResponse process(Expression whereExpression, Table table) throws IOException, SQLParserException {
+        if (whereExpression != null) {
+            Cursor indexCursor = getIndexCursor(whereExpression, table);// null;
+            Cursor cursor;
+            if (indexCursor != null) {
+                cursor = new WhereCursor(indexCursor, whereExpression);
+            } else {
+                Cursor innerCursor = new FullScanCursor(bufferManager, table, table.getFirstPageId(), 0);
+                cursor = new WhereCursor(innerCursor, whereExpression);
+            }
+
+            return new QueryResponse(QueryResponse.Status.OK, cursor);
+        }
+        Cursor cursor = new FullScanCursor(bufferManager, table, table.getFirstPageId(), 0);
+        return new QueryResponse(QueryResponse.Status.OK, cursor);
     }
 
     private Cursor getIndexCursor(Expression whereExpression, Table table) throws SQLParserException, IOException {

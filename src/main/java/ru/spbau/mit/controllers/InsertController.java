@@ -76,6 +76,8 @@ public class InsertController implements QueryController {
                         (Integer) record.getValues().get(column),
                         new LeafEntry(recordPage.getId(), absRecordNum
                         ));
+
+                table.setIndexRootPageIdForColumn(column, bTree.getRoot().getPageId());
             }
 
             return new QueryResponse(QueryResponse.Status.OK, 1);
