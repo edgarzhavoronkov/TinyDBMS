@@ -31,7 +31,7 @@ public class LeafNodePageImpl extends NodePageImpl implements LeafNodePage {
     private LeafEntry[] getEntries() {
         if (entries == null) {
             page.getByteBuffer().position(ENTRY_OFFSET);
-            entries = new LeafEntry[ENTRY_CAPACITY];
+            entries = new LeafEntry[ENTRY_CAPACITY+1];
             for (int i = 0; i < getSize(); i++) {
                 int pageId = page.getByteBuffer().getInt();
                 int offset = page.getByteBuffer().getInt();
@@ -52,6 +52,7 @@ public class LeafNodePageImpl extends NodePageImpl implements LeafNodePage {
         assert (index < getSize());
         makeDirty();
         getEntries()[index] = leafEntry;
+
     }
 
 }

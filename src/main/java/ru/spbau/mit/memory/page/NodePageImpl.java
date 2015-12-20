@@ -88,6 +88,14 @@ public class NodePageImpl implements NodePage {
     @Override
     public void flush() {
         page.getByteBuffer().put(IS_LEAF_OFFSET, isLeaf() ? (byte) 1 : (byte) 0);
+        if(size == 111){
+            size --;
+            size ++;
+        }
+        if(getSize() == 111){
+            size --;
+            size ++;
+        }
         page.getByteBuffer().putInt(SIZE_OFFSET, getSize());
         page.getByteBuffer().putInt(LEFT_NODE_OFFSET, getLeftNodePageId() == null ? -1 : getLeftNodePageId());
         page.getByteBuffer().putInt(RIGHT_NODE_OFFSET, getRightNodePageId() == null ? -1 : getRightNodePageId());
@@ -117,12 +125,20 @@ public class NodePageImpl implements NodePage {
     public int getSize() {
         if (size == null) {
             size = page.getByteBuffer().getInt(SIZE_OFFSET);
+            if(size == 111){
+                size --;
+                size ++;
+            }
         }
         return size;
     }
 
     @Override
     public void setSize(int size) {
+        if(size == 111 && size > this.size + 1){
+            size --;
+            size ++;
+        }
         makeDirty();
         this.size = size;
     }
@@ -189,6 +205,11 @@ public class NodePageImpl implements NodePage {
         assert (index < getSize());
         makeDirty();
         getKeys()[index] = value;
+    }
+
+    @Override
+    public BasePage getBasePage() {
+        return page;
     }
 
     public Integer[] getKeys() {

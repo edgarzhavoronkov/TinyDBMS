@@ -36,11 +36,11 @@ public class ConsoleController {
 
         String cmd1 = "create table t1 (id INT, df DOUBLE)";
         queryHandler(cmd1);
-        System.out.println(runRandomIntegerTestInsert(1000_000));
+        System.out.println(runRandomIntegerTestInsert(100_000));
         cmd1 = "create index index1 on t1(id)";
         queryHandler(cmd1);
 
-        queryHandler("select * from t1 where id < 50");
+        queryHandler("select * from t1 where id < 500");
 
 //        while (true) {
 //            String line = input.readLine();

@@ -44,7 +44,7 @@ public class BufferManager {
     }
 
     public BasePage getPage(Integer id) throws IOException {
-        if (pageMap.containsKey(id)) {
+        if (pages.contains(new BasePageImpl(new byte[BasePage.SIZE], id))) {
             BasePage page = pageMap.get(id);
             removePageFromBuffer(page);
             addPageToBuffer(page);
@@ -71,8 +71,12 @@ public class BufferManager {
     }
 
     private void addPageToBuffer(BasePage page) throws IOException {
+        if(pinedPages.contains(page)){
+            return;
+        }
         page.updateOperationId(operationId++);
         if (CAPACITY == (pages.size() + pinedPages.size())) {
+            //TODO get while pageToRemove in pinnedPages
             BasePage pageToRemove = pages.pollFirst();
             pageMap.remove(pageToRemove.getId());
             fileDataManager.savePage(pageToRemove);

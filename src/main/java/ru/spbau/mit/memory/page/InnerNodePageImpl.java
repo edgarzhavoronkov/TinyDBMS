@@ -16,6 +16,10 @@ public class InnerNodePageImpl extends NodePageImpl implements InnerNodePage {
         if (children == null) {
             page.getByteBuffer().position(CHILDREN_OFFSET);
             children = new Integer[CHILDREN_CAPACITY + 1];
+            if(size >= 111){
+                size --;
+                size ++;
+            }
             for (int i = 0;getSize() > 0 &&  i < getSize() + 1; i++) {
                 children[i] = page.getByteBuffer().getInt();
             }

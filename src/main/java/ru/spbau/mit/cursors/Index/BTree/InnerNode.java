@@ -56,8 +56,18 @@ public class InnerNode extends Node {
     }
 
     private void insertAt(int index, int key, Node left, Node right) throws IOException {
+        int tmp = getSize();
+        if(tmp >= 111){
+            tmp --;
+        }
         for (int i = getSize(); i > index; i--) {
-            setKeyAt(i, getKeyAt(i - 1));
+            try{
+                setKeyAt(i, getKeyAt(i - 1));
+            }catch (Exception e){
+                System.out.println(getChildPageAt(i-1));
+                throw e;
+            }
+
         }
         for (int i = getSize() + 1; i > index; i--) {
             setChildPageAt(i, getChildPageAt(i - 1));

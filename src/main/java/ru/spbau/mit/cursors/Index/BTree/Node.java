@@ -3,6 +3,7 @@ package ru.spbau.mit.cursors.Index.BTree;
 
 
 import ru.spbau.mit.QueryHandler;
+import ru.spbau.mit.memory.BufferManager;
 import ru.spbau.mit.memory.page.*;
 
 import java.io.IOException;
@@ -23,6 +24,10 @@ public abstract class Node {
 
 
     public static Node getNode(Integer pageId) throws IOException {
+        if(pageId == 0){
+            int tmp = 0;
+            tmp --;
+        }
         NodePage nodePage = new NodePageImpl(QueryHandler.bufferManager.getPage(pageId));
         if (nodePage.isLeaf()) {
             LeafNodePage leafNodePage = new LeafNodePageImpl(QueryHandler.bufferManager.getPage(pageId));
@@ -146,11 +151,16 @@ public abstract class Node {
     protected abstract Node pushToParent(int key, Node leftChild, Node rightChild) throws IOException;
 
     public boolean isFull() {
-        return getSize() == NodePage.KEYS_CAPACITY;
+        return getSize() == (NodePage.KEYS_CAPACITY + 1);
     }
 
     public Node resolveOversize() throws IOException {
-        int splitKey = getKeyAt(NodePage.KEYS_CAPACITY / 2);
+        try {
+            QueryHandler.bufferManager.pinPage(nodePage.getBasePage());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        int splitKey = getKeyAt(getSize() / 2);
         Node newRightNode = split();
 
         if (getParentNodePageID() == null) {
@@ -169,16 +179,21 @@ public abstract class Node {
         setRightNode(newRightNode);
 
         Node parentNode = getParentNode();
-
-        return parentNode.pushToParent(splitKey, this, newRightNode);
+        Node result = parentNode.pushToParent(splitKey, this, newRightNode);
+        try {
+            QueryHandler.bufferManager.unPinned(nodePage.getBasePage());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return result;
     }
 
     public boolean isTooEmpty() {
-        return getSize() < NodePage.KEYS_CAPACITY / 2;
+        return getSize() < (NodePage.KEYS_CAPACITY + 1) / 2;
     }
 
     public boolean canDonate() {
-        return getSize() > NodePage.KEYS_CAPACITY / 2;
+        return getSize() > (NodePage.KEYS_CAPACITY + 1) / 2;
     }
 
     protected abstract void transferChildren(Node receiver, Node donor, int donationIndex) throws IOException;

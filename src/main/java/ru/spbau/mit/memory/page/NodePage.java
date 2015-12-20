@@ -4,7 +4,7 @@ package ru.spbau.mit.memory.page;
  * Created by John on 12/6/2015.
  */
 public interface NodePage extends BasePage {
-    int KEYS_CAPACITY = 100;
+    int KEYS_CAPACITY = 110;
 
     boolean isLeaf();
 
@@ -29,4 +29,6 @@ public interface NodePage extends BasePage {
     Integer getKeyAt(int index);
 
     void setKeyAt(int index, Integer value);
+
+    BasePage getBasePage();
 }
