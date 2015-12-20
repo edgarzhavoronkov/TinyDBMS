@@ -13,7 +13,6 @@ import ru.spbau.mit.meta.Column;
 import ru.spbau.mit.meta.Table;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Predicate;
 
@@ -76,23 +75,20 @@ public class WhereCursor implements Cursor {
 
     @Override
     public boolean hasNext() {
-        currentRecord = (Record) innerCursor.next();
-        while (innerCursor.hasNext() && !match(currentRecord, whereExpression)) {
-            currentRecord = (Record) innerCursor.next();
-        }
         return innerCursor.hasNext();
     }
 
     @Override
     public Object next() {
-        //TODO: rewrite!!!
-        if (currentRecord == null) {
-            currentRecord = new Record(new HashMap<>());
+        currentRecord = null;
+        while (innerCursor.hasNext()) {
+            Record record = (Record) innerCursor.next();
+            if (match(record, whereExpression)) {
+                currentRecord = record;
+                return currentRecord;
+            }
         }
-        if (!hasNext()) {
-            return null;
-        }
-        return currentRecord;
+        return null;
     }
 
     private boolean match(Record record, Expression expression) {
