@@ -23,7 +23,9 @@ public class TreeIndexCursor implements Cursor{
     private int position;
     private Record currentRecord;
     private Column indexColumn;
-    public TreeIndexCursor(BufferManager bufferManager, Table table, Column indexColumn,int leftKey) throws IOException {
+    private Integer rightKey;
+
+    public TreeIndexCursor(BufferManager bufferManager, Table table, Column indexColumn, int leftKey, int rightKey) throws IOException {
         Integer indexPageId = table.getIndexRootPageIdForColumn(indexColumn);
         this.indexColumn = indexColumn;
         if(indexPageId == null){
@@ -32,6 +34,7 @@ public class TreeIndexCursor implements Cursor{
         bTree = new BTree(indexPageId);
         this.bufferManager = bufferManager;
         this.table = table;
+        this.rightKey = rightKey;
 
         currentNode = bTree.find(leftKey);
 
@@ -64,7 +67,7 @@ public class TreeIndexCursor implements Cursor{
     public Cursor clone() {
         //todo implement
         try {
-            return new TreeIndexCursor(bufferManager, table, indexColumn, currentNode.getKeyAt(position));
+            return new TreeIndexCursor(bufferManager, table, indexColumn, currentNode.getKeyAt(position), rightKey);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -88,8 +91,8 @@ public class TreeIndexCursor implements Cursor{
     public boolean hasNext() {
         boolean isEmpty = (position == -1);
         boolean isLast = (position == currentNode.getSize()) && (currentNode.getRightNodePageId() == null);
-        return !(isEmpty || isLast);
-
+        boolean rightBounds = !isEmpty && currentNode.getKeyAt(position) > rightKey;
+        return !(isEmpty || isLast || rightBounds);
     }
 
     @Override

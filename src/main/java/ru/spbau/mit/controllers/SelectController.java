@@ -2,6 +2,7 @@ package ru.spbau.mit.controllers;
 
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.LongValue;
+import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
 import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
 import net.sf.jsqlparser.expression.operators.relational.GreaterThan;
 import net.sf.jsqlparser.expression.operators.relational.GreaterThanEquals;
@@ -21,6 +22,10 @@ import ru.spbau.mit.meta.QueryResponse;
 import ru.spbau.mit.meta.Table;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 
 /**
@@ -50,7 +55,7 @@ public class SelectController implements QueryController {
             if (plainSelect.getSelectItems().get(0) instanceof AllColumns) {
                 if (whereExpression != null) {
 
-                    Cursor indexCursor = getIndexCursor(whereExpression, table);
+                    Cursor indexCursor = getIndexCursor(whereExpression, table);// null;
                     Cursor cursor;
                     if (indexCursor != null) {
                         cursor = new WhereCursor(indexCursor, whereExpression);
@@ -71,37 +76,79 @@ public class SelectController implements QueryController {
     }
 
     private Cursor getIndexCursor(Expression whereExpression, Table table) throws SQLParserException, IOException {
-        OldOracleJoinBinaryExpression binaryExpression = (OldOracleJoinBinaryExpression) whereExpression;
-        net.sf.jsqlparser.schema.Column leftExpression = (net.sf.jsqlparser.schema.Column) (binaryExpression).getLeftExpression();
+        Map<String, Bounds> bounds = getBounds(whereExpression, table.getIndexedColumns().keySet());
 
-        if (!(binaryExpression.getRightExpression() instanceof LongValue)) {
-            throw new SQLParserException("Index permit only for INT columns!");
-        }
-
-        Integer value = new Long(((LongValue) binaryExpression.getRightExpression()).getValue()).intValue();
-        String columnName = leftExpression.getColumnName();
-
-        Column column = null;
-        if (table.getIndexedColumns().containsKey(columnName)) {
+        if (bounds.size() == 0) {
+            return null;
+        } else {
+            Map.Entry<String, Bounds> entry = bounds.entrySet().iterator().next();
+            String columnName = entry.getKey();
+            Column column = null;
             for (Column column1 : table.getColumns()) {
                 if (column1.getName().equals(columnName)) {
                     column = column1;
-                    break;
                 }
+            }
+            if (column == null) {
+                return null;
+            } else {
+                return new TreeIndexCursor(bufferManager, table, column, entry.getValue().leftBound, entry.getValue().rightBound);
             }
         }
 
-        if (column != null) {
+
+    }
+
+    private Map<String, Bounds> getBounds(Expression whereExpression, Set<String> indexedColumns) throws SQLParserException {
+
+        if (whereExpression instanceof AndExpression) {
+            Expression rightExpression = ((AndExpression) whereExpression).getRightExpression();
+            Map<String, Bounds> rBounds = getBounds(rightExpression, indexedColumns);
+            Expression leftExpression = ((AndExpression) whereExpression).getLeftExpression();
+            Map<String, Bounds> lBounds = getBounds(leftExpression, indexedColumns);
+
+            Map<String, Bounds> result = new HashMap<>(rBounds);
+            for (String columnName : lBounds.keySet()) {
+                if (result.containsKey(columnName)) {
+                    Bounds boundsR = result.get(columnName);
+                    Bounds boundsL = lBounds.get(columnName);
+                    boundsR.leftBound = Math.max(boundsR.leftBound, boundsL.leftBound);
+                    boundsR.rightBound = Math.min(boundsR.rightBound, boundsL.rightBound);
+                } else {
+                    result.put(columnName, lBounds.get(columnName));
+                }
+            }
+            return result;
+        }
+
+        OldOracleJoinBinaryExpression binaryExpression = (OldOracleJoinBinaryExpression) whereExpression;
+        net.sf.jsqlparser.schema.Column leftExpression = (net.sf.jsqlparser.schema.Column) (binaryExpression).getLeftExpression();
+
+        if (indexedColumns.contains(leftExpression.getColumnName())) {
+            Integer value = new Long(((LongValue) binaryExpression.getRightExpression()).getValue()).intValue();
+
+            if (!(binaryExpression.getRightExpression() instanceof LongValue)) {
+                throw new SQLParserException("Index permit only for INT columns!");
+            }
+
+            Bounds bounds = new Bounds();
             if (whereExpression instanceof GreaterThanEquals ||
                     whereExpression instanceof GreaterThan ||
                     whereExpression instanceof EqualsTo) {
-                return new TreeIndexCursor(bufferManager, table, column, value - 1);
+                bounds.leftBound = value;
             } else {
-                return new TreeIndexCursor(bufferManager, table, column, Integer.MIN_VALUE);
+                bounds.rightBound = value;
             }
-        }
 
-        return null;
+            return Collections.singletonMap(leftExpression.getColumnName(), bounds);
+        }
+        return Collections.emptyMap();
     }
+
+    private static class Bounds {
+        Integer leftBound = Integer.MIN_VALUE;
+        Integer rightBound = Integer.MAX_VALUE;
+    }
+
 
 }

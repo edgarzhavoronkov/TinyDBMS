@@ -115,6 +115,7 @@ public class RecordPageImpl implements RecordPage {
     }
 
     private void setRecordCount(short recordCount) {
+        makeDirty();
         this.recordCount = recordCount;
     }
 
@@ -218,6 +219,7 @@ public class RecordPageImpl implements RecordPage {
 
     @Override
     public void setNextPageId(Integer nextPageId) {
+        makeDirty();
         this.nextPageId = nextPageId;
     }
 
