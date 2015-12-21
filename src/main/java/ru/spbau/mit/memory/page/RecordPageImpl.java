@@ -154,14 +154,14 @@ public class RecordPageImpl implements RecordPage {
      */
     @Override
     public int getAbsRecordNum(int num) {
-        int cur = 0;
+        int cur = -1;
         int i;
 
         for (i = 0; i < getBitSet().size(); i++) {
             if (getBitSet().get(i)) {
                 cur++;
             }
-            if (cur == (num + 1)) {
+            if (cur == num) {
                 break;
             }
         }
@@ -175,7 +175,9 @@ public class RecordPageImpl implements RecordPage {
         int recordNum = getAbsRecordNum(num);
 
         makeDirty();
+
         getBitSet().set(recordNum, false);
+        setRecordCount((short) (getRecordCount() - 1));
     }
 
     private int getFirstFreePos() {

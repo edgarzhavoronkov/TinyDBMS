@@ -1,7 +1,6 @@
 package ru.spbau.mit.cursors.Index.BTree;
 
 
-
 import ru.spbau.mit.QueryHandler;
 import ru.spbau.mit.memory.page.*;
 
@@ -151,6 +150,7 @@ public abstract class Node {
 
     public Node resolveOversize() throws IOException {
         int splitKey = getKeyAt(NodePage.KEYS_CAPACITY / 2);
+        QueryHandler.bufferManager.pinPage(((NodePageImpl) this.nodePage).getPage());
         Node newRightNode = split();
 
         if (getParentNodePageID() == null) {
@@ -170,7 +170,9 @@ public abstract class Node {
 
         Node parentNode = getParentNode();
 
-        return parentNode.pushToParent(splitKey, this, newRightNode);
+        Node node = parentNode.pushToParent(splitKey, this, newRightNode);
+        QueryHandler.bufferManager.unPinned(((NodePageImpl) this.nodePage).getPage());
+        return node;
     }
 
     public boolean isTooEmpty() {
