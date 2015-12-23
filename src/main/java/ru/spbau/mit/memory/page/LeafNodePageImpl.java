@@ -22,8 +22,12 @@ public class LeafNodePageImpl extends NodePageImpl implements LeafNodePage {
         page.getByteBuffer().position(ENTRY_OFFSET);
         for (int i = 0; i < getSize(); i++) {
             LeafEntry entry = getEntries()[i];
-            page.getByteBuffer().putInt(entry.getPageId());
-            page.getByteBuffer().putInt(entry.getOffset());
+            try {
+                page.getByteBuffer().putInt(entry.getPageId());
+                page.getByteBuffer().putInt(entry.getOffset());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         super.flush();
     }

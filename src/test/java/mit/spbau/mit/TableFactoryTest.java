@@ -19,7 +19,9 @@ public class TableFactoryTest {
     public void createTable() throws IOException {
         ArrayList<Column> columns = new ArrayList<>();
         columns.add(new Column("col1", DataType.DOUBLE));
-        columns.add(new Column("col2", DataType.VARCHAR));
+        Column column = new Column("col2", DataType.VARCHAR);
+        column.setSize(128);
+        columns.add(column);
         columns.add(new Column("col3", DataType.INTEGER));
         Table table = new Table("tableName", 0, 0, columns, new HashMap<>());
         TableFactory.addTable(table);

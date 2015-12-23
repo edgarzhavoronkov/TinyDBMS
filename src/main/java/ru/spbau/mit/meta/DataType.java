@@ -19,7 +19,7 @@ public enum DataType {
     DOUBLE (Double.class, Double.BYTES) {
         @Override
         public void putInPage(Object o, RecordPage recordPage) {
-            recordPage.getByteBuffer().putDouble((Double)o);
+            recordPage.getByteBuffer().putDouble((Double) o);
         }
 
         @Override
