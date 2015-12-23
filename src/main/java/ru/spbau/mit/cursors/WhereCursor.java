@@ -67,12 +67,12 @@ public class WhereCursor implements Cursor {
 
     @Override
     public Integer getPageId() {
-        return null;
+        return innerCursor.getPageId();
     }
 
     @Override
     public Integer getOffset() {
-        return null;
+        return innerCursor.getOffset();
     }
 
     @Override

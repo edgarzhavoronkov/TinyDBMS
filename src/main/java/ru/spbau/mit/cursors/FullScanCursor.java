@@ -58,13 +58,13 @@ public class FullScanCursor implements Cursor {
     public FullScanCursor(BufferManager bufferManager, Table table, Integer pageId, Integer offset) throws IOException {
         this(bufferManager, table);
         this.pageId = pageId;
-        this.offset = offset;
+        this.offset = offset - 1;
         this.initialPageId = pageId;
         this.initialOffset = offset;
         initiateCursor(pageId, offset);
     }
 
-    public FullScanCursor(BufferManager bufferManager, Table table){
+    public FullScanCursor(BufferManager bufferManager, Table table) {
         this.table = table;
         this.bufferManager = bufferManager;
     }
@@ -72,7 +72,7 @@ public class FullScanCursor implements Cursor {
     @Override
     public void initiateCursor(Integer pageId, Integer offset) throws IOException {
         this.pageId = pageId;
-        this.offset = offset;
+        this.offset = offset - 1;
         start();
     }
 
@@ -82,19 +82,19 @@ public class FullScanCursor implements Cursor {
         currentRecordPage.pin();
     }
 
-    public Record value(){
+    public Record value() {
         return currentRecord;
     }
 
     @Override
     public boolean hasNext() {
-        return (offset < currentRecordPage.getRecordCount() || currentRecordPage.hasNext());
+        return (offset < currentRecordPage.getRecordCount() - 1 || currentRecordPage.hasNext());
     }
 
     @Override
     public Object next() {
         if (!hasNext()) return null;
-        if(offset >= currentRecordPage.getRecordCount()){
+        if (offset >= currentRecordPage.getRecordCount() - 1) {
             currentRecordPage.unpin();
             try {
                 currentRecordPage = new RecordPageImpl(bufferManager.getPage(currentRecordPage.getNextPageId()), table);
@@ -102,11 +102,12 @@ public class FullScanCursor implements Cursor {
                 e.printStackTrace();
             }
             currentRecordPage.pin();
-            offset = 0;
+            offset = -1;
+            return next();
         }
-
+        offset++;
         currentRecord = currentRecordPage.getRecord(offset);
-        offset ++;
+
         return currentRecord;
     }
 

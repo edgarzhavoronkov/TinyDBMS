@@ -44,7 +44,7 @@ public class BufferManager {
     }
 
     public BasePage getPage(Integer id) throws IOException {
-        if (pageMap.containsKey(id)) {
+        if (pageMap.containsKey(id) && !pinedPages.contains(new BasePageImpl(new byte[0], id))) {
             BasePage page = pageMap.get(id);
             removePageFromBuffer(page);
             addPageToBuffer(page);
@@ -74,6 +74,9 @@ public class BufferManager {
         page.updateOperationId(operationId++);
         if (CAPACITY == (pages.size() + pinedPages.size())) {
             BasePage pageToRemove = pages.pollFirst();
+            if (pageToRemove == null) {
+                System.out.println();
+            }
             pageMap.remove(pageToRemove.getId());
             fileDataManager.savePage(pageToRemove);
         }
@@ -81,19 +84,19 @@ public class BufferManager {
         pages.add(page);
     }
 
-    public void pinPage(BasePage page) throws Exception {
+    public void pinPage(BasePage page) throws IOException {
         page.pin();
         if (pages.remove(page)) {
             pinedPages.add(page);
         }
     }
 
-    public void unPinned(BasePage page) throws Exception {
+    public void unPinned(BasePage page) throws IOException {
         assert (page.isPin());
-        page.unpin();
         if (page.isPin() && !pinedPages.remove(page)) {
             throw new RuntimeException("Pinned exception ");
         }
+        page.unpin();
         addPageToBuffer(page);
     }
 
