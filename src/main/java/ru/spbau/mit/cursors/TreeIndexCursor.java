@@ -24,6 +24,7 @@ public class TreeIndexCursor implements Cursor{
     private Record currentRecord;
     private Column indexColumn;
     private Integer rightKey;
+    private RecordPage page;
 
     public TreeIndexCursor(BufferManager bufferManager, Table table, Column indexColumn, int leftKey, int rightKey) throws IOException {
         Integer indexPageId = table.getIndexRootPageIdForColumn(indexColumn);
@@ -86,7 +87,7 @@ public class TreeIndexCursor implements Cursor{
 
     @Override
     public Integer getOffset() {
-        return currentNode.getEntryAt(position).getOffset();
+        return page.getOffsetByAbsPosition(currentNode.getEntryAt(position).getOffset());
     }
 
     @Override
@@ -96,7 +97,7 @@ public class TreeIndexCursor implements Cursor{
     public boolean hasNext() {
         boolean isEmpty = (position == -1);
         boolean isLast = (position == currentNode.getSize()) && (currentNode.getRightNodePageId() == null);
-        boolean rightBounds = !isEmpty && currentNode.getKeyAt(position) > rightKey;
+        boolean rightBounds = !isEmpty && !isLast && currentNode.getKeyAt(position) > rightKey;
         return !(isEmpty || isLast || rightBounds);
     }
 
@@ -106,7 +107,7 @@ public class TreeIndexCursor implements Cursor{
             return null;
         }
         try {
-            RecordPage page = new RecordPageImpl(bufferManager.getPage(currentNode.getEntryAt(position).getPageId()), table);
+            page = new RecordPageImpl(bufferManager.getPage(currentNode.getEntryAt(position).getPageId()), table);
             currentRecord = page.getRecordByAbsolutePosition(currentNode.getEntryAt(position).getOffset());
             position ++;
             if(position == currentNode.getSize() && (currentNode.getRightNode() != null)){

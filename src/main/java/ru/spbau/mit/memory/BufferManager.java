@@ -15,7 +15,7 @@ import java.util.TreeSet;
  */
 public class BufferManager {
 
-    private final int CAPACITY = 100;
+    private final int CAPACITY = 1000;
 
     private long operationId;
 

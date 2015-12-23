@@ -13,6 +13,7 @@ import net.sf.jsqlparser.statement.update.Update;
 import ru.spbau.mit.controllers.*;
 import ru.spbau.mit.cursors.Cursor;
 import ru.spbau.mit.memory.BufferManager;
+import ru.spbau.mit.memory.FileDataManager;
 import ru.spbau.mit.memory.Record;
 import ru.spbau.mit.meta.Column;
 import ru.spbau.mit.meta.QueryResponse;
@@ -35,7 +36,8 @@ public class QueryHandler {
     private static JoinController joinController;
     private static CreateIndexController createIndexController;
 
-    public static void queryHandler(String query) throws JSQLParserException, IOException {
+    public static Long queryHandler(String query) throws JSQLParserException, IOException {
+        Long start = System.currentTimeMillis();
         Statement statement = CCJSqlParserUtil.parse(query);
         if (statement instanceof CreateTable) {
             statusHandler(createController.process(statement));
@@ -48,14 +50,17 @@ public class QueryHandler {
         } else if (statement instanceof Delete) {
             statusHandler(deleteController.process(statement));
         } else if (statement instanceof Select) {
+            FileDataManager.resetGetCount();
             if (((PlainSelect)((Select) statement).getSelectBody()).getJoins() != null) {
                 selectHandler(joinController.process(statement));
             } else {
                 selectHandler(selectController.process(statement));
             }
+            System.out.println("page count = " + FileDataManager.getPageGetCount());
         } else {
             System.out.println("Unknown command! Please try again");
         }
+        return System.currentTimeMillis() - start;
     }
 
     public static long queryFastHandler(String query) throws JSQLParserException, IOException {
