@@ -58,19 +58,31 @@ public class QueryHandler {
         }
     }
 
-    public static void queryFastHandler(String query) throws JSQLParserException, IOException {
+    public static long queryFastHandler(String query) throws JSQLParserException, IOException {
+
+        Long startTime = 0L;
+        Long endTime = 0L;
         Statement statement = CCJSqlParserUtil.parse(query);
         if (statement instanceof CreateTable) {
+            startTime = System.currentTimeMillis();
             createController.process(statement);
+            endTime = System.currentTimeMillis();
         } else if (statement instanceof Insert) {
+            startTime = System.currentTimeMillis();
             insertController.process(statement);
+            endTime = System.currentTimeMillis();
         } else if (statement instanceof Update) {
+            startTime = System.currentTimeMillis();
             updateController.process(statement);
+            endTime = System.currentTimeMillis();
         } else if (statement instanceof Select) {
+            startTime = System.currentTimeMillis();
             selectController.process(statement);
+            endTime = System.currentTimeMillis();
         } else {
             System.out.println("Unknown command! Please try again");
         }
+        return endTime - startTime;
     }
 
     private static void selectHandler(QueryResponse response) {
