@@ -132,6 +132,7 @@ public class RecordPageImpl implements RecordPage {
         return new Record(values);
     }
 
+
     @Override
     public Record getRecordByAbsolutePosition(Integer num){
         if(getBitSet().get(num)){
@@ -166,6 +167,22 @@ public class RecordPageImpl implements RecordPage {
             }
         }
         return i;
+    }
+
+    @Override
+    public int getOffsetByAbsPosition(int offset) {
+        int cur = -1;
+        int i;
+
+        for (i = 0; i < getBitSet().size(); i++) {
+            if (getBitSet().get(i)) {
+                cur++;
+            }
+            if (i == offset) {
+                break;
+            }
+        }
+        return cur;
     }
 
     @Override

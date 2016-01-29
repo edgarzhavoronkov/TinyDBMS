@@ -136,9 +136,12 @@ public class SelectController implements QueryController {
 
             Bounds bounds = new Bounds();
             if (whereExpression instanceof GreaterThanEquals ||
-                    whereExpression instanceof GreaterThan ||
-                    whereExpression instanceof EqualsTo) {
+                    whereExpression instanceof GreaterThan
+                    ) {
                 bounds.leftBound = value;
+            } else if (whereExpression instanceof EqualsTo) {
+                bounds.leftBound = value;
+                bounds.rightBound = value;
             } else {
                 bounds.rightBound = value;
             }

@@ -17,16 +17,6 @@ import static ru.spbau.mit.QueryHandler.*;
  */
 public class ConsoleController {
 
-    private static Random rand = new Random();
-
-    private static String randomString(int len){
-        StringBuilder sb = new StringBuilder(len);
-        for (int i = 0; i < len; i++) {
-            sb.append((char)('a' + rand.nextInt('z' - 'a')));
-        }
-        return sb.toString();
-    }
-
     public static void main(String[] args) throws IOException, JSQLParserException {
         System.out.println("Tiny Database command line tool\n");
         initialize();
@@ -44,44 +34,70 @@ public class ConsoleController {
         StringBuilder command = new StringBuilder();
         BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
 
-//        String cmd1 = "create table t (id INT, rand_int INT, str VARCHAR(11))";
-//        String cmd2 = "create table numbers (num_id INT, num VARCHAR(11))";
+//        String cmd1 = "create table t1 (id INT, df DOUBLE)";
 //        queryHandler(cmd1);
+//        cmd1 = "create index index1 on t1 (id)";
+//        queryHandler(cmd1);
+//        String cmd2 = "create table t2 (id INT, df DOUBLE)";
 //        queryHandler(cmd2);
-//        for (int i=0; i < 1; ++i) {
-//            queryHandler(String.format("insert into t(id, rand_int, str) values(%d, %d, '%s')", i+1, rand.nextInt(10) + 1, randomString(10)));
-//        }
-//
-//
-//        String[] nums = {"one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"};
-//        for (int i = 0; i < 10; ++i) {
-//            queryHandler(String.format("insert into numbers(num_id, num) values(%d, '%s')", i + 1, nums[i]));
-//        }
-//        queryHandler("insert into numbers(num_id, num) values(1, 'one_plus')");
 
-//        queryHandler("select * from t join numbers on id = num_id");
-//        queryHandler("select * from t join numbers on num_id = id");
-//        queryHandler("select * from numbers join t on id = num_id");
-//        queryHandler("select * from numbers join t on num_id = id");
 
+//        System.out.println(runRandomIntegerTestInsert(1_000_000));
+//        queryHandler("select * from t2 where id >= 1000 and id < 1100");
+
+//        System.out.println(runTestInsert("t2", 100_000));
+//        queryHandler("select * from t1 where id >= 10 and id < 80");
+
+
+//        queryHandler("delete from t1 where id >= 0 and id < 4000");
+//        queryHandler("select * from t1");
+
+//        queryHandler("select * from t1 where id >= 50000 and id < 51000");
+//        queryHandler("delete from t1 where id >= 50000 and id < 51000");
+//        queryHandler("select * from t1 where id >= 50000 and id < 50100");
+//        System.out.println("+++++++++++++++++++++++++++++");
+//        queryHandler("select * from t1 where id >= 49900 and id < 50000");
+
+
+//        queryHandler("select * from t2 where id < 50");
+
+//        System.out.println(runRandomIntegerTestInsert(800_000));
+//
         while (true) {
             String line = input.readLine();
             if (line.length() == 0 && command.length() > 0) {
                 queryHandler(command.toString());
                 command = new StringBuilder();
             }
-
             if (line.toLowerCase().trim().equals("quit")) break;
             command.append(line).append('\n');
         }
-
-
     }
 
-    private static long runTestInsert(String table_name, String col_name, int insertTime) throws IOException, JSQLParserException {
+    private static long runTestStringInsert(int insertTime) throws IOException, JSQLParserException {
+        String cmd1 = "create table t3 (id INT, df DOUBLE, str VARCHAR(128))";
+        queryHandler(cmd1);
         long startTime = System.currentTimeMillis();
         for (int i = 0; i < insertTime; i++) {
-            String cmd = String.format("INSERT INTO %s (id, %s) VALUES (%d, %f)", table_name, col_name, i, Math.random());
+            String cmd = String.format("INSERT INTO t3 (id, df, str) VALUES (%d, %f, %s)", i, Math.random(), "'abc'");
+            if (i % 10_000 == 0) {
+                System.out.println(String.format("Insert %d rows", i));
+            }
+            queryFastHandler(cmd);
+        }
+        cmd1 = "create index index1 on t3 (id)";
+        queryHandler(cmd1);
+        return (System.currentTimeMillis() - startTime);
+    }
+
+
+    private static long runTestInsert(String table_name, int insertTime) throws IOException, JSQLParserException {
+        long startTime = System.currentTimeMillis();
+        for (int i = 0; i < insertTime; i++) {
+            if (i == 49) {
+                System.out.println(i);
+            }
+            String cmd = String.format("INSERT INTO %s (id, df) VALUES (%d, %f)", table_name, i, Math.random());
             if (i % 10_000 == 0) {
                 System.out.println(String.format("Insert %d rows", i));
             }
@@ -91,16 +107,21 @@ public class ConsoleController {
     }
 
     private static long runRandomIntegerTestInsert(int insertTime) throws IOException, JSQLParserException {
+        String cmd1 = "create table t2 (id INT, df DOUBLE)";
+        queryHandler(cmd1);
         long startTime = System.currentTimeMillis();
         Random random = new Random();
         for (int i = 0; i < insertTime; i++) {
-            String cmd = String.format("INSERT INTO t1 (id, df) VALUES (%d, %f)", random.nextInt()%10000, Math.random());
-            if (i % 10_000 == 0) {
-                System.out.println(String.format("Insert %d rows", i));
+            String cmd = String.format("INSERT INTO t2 (id, df) VALUES (%d, %f)", Math.abs(random.nextInt() % 10_000), Math.random());
+            if ((i + 1) % 10_000 == 0) {
+                System.out.println(String.format("Insert %d rows", i + 1));
+//                System.out.println("Pages size = " + QueryHandler.bufferManager.getPagesSize());
+//                System.out.println("Pinned size = " + QueryHandler.bufferManager.getPinedSize());
             }
             queryFastHandler(cmd);
-
         }
+        cmd1 = "create index index1 on t2(id)";
+        queryHandler(cmd1);
         return (System.currentTimeMillis() - startTime);
     }
 

@@ -22,6 +22,8 @@ public interface RecordPage extends BasePage {
 
     int getAbsRecordNum(int num);
 
+    int getOffsetByAbsPosition(int offset);
+
     void removeRecord(Integer num);
 
     LeafEntry putRecord(Record record);

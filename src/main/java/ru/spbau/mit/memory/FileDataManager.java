@@ -19,6 +19,16 @@ public class FileDataManager {
     private Long pageCount;
     private int firstFreePage;
 
+    private static int pageGetCount;
+
+    public static int getPageGetCount() {
+        return pageGetCount;
+    }
+
+    public static void resetGetCount() {
+        pageGetCount = 0;
+    }
+
     public FileDataManager() throws IOException {
 
         String dirPath = PropertiesManager.getProperties().getProperty("dir_path");
@@ -53,6 +63,8 @@ public class FileDataManager {
 
     public BasePage getPageById(Integer id) throws IOException {
         assert (id < pageCount);
+
+        pageGetCount++;
 
         byte[] data = new byte[BasePage.SIZE];
         BasePage page = new BasePageImpl(data, id);

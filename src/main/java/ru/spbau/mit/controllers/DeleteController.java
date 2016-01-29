@@ -45,7 +45,8 @@ public class DeleteController implements QueryController {
             while (cursor.hasNext()) {
                 Record record = (Record) cursor.next();
                 if (record == null) continue;
-                if (curPageId != cursor.getPageId()) {
+                if (curPageId != cursor.getPageId() && deletedRecords.size() > 0) {
+                    deletedRecords.sort((o1, o2) -> o1 - o2);
                     RecordPage page = new RecordPageImpl(bufferManager.getPage(curPageId), table);
                     for (int i = deletedRecords.size() - 1; i >= 0; i--) {
                         page.removeRecord(deletedRecords.get(i));
