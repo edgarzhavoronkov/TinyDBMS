@@ -60,7 +60,7 @@ public class FullScanCursor implements Cursor {
         this.pageId = pageId;
         this.offset = offset - 1;
         this.initialPageId = pageId;
-        this.initialOffset = offset;
+        this.initialOffset = offset - 1;
         initiateCursor(pageId, offset);
     }
 
@@ -94,7 +94,7 @@ public class FullScanCursor implements Cursor {
     @Override
     public Object next() {
         if (!hasNext()) return null;
-        if (offset >= currentRecordPage.getRecordCount() - 1) {
+        if (offset >= currentRecordPage.getRecordCount()) {
             currentRecordPage.unpin();
             try {
                 currentRecordPage = new RecordPageImpl(bufferManager.getPage(currentRecordPage.getNextPageId()), table);

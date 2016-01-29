@@ -62,7 +62,7 @@ public class WhereCursor implements Cursor {
 
     @Override
     public void reset() {
-
+        innerCursor.reset();
     }
 
     @Override

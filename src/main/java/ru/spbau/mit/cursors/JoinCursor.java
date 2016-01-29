@@ -23,6 +23,7 @@ public class JoinCursor implements Cursor {
         this.leftCursor = leftCursor;
         this.rightCursor = rightCursor;
         this.onExpression = onExpression;
+        this.leftCursor.next();
     }
 
     @Override
@@ -75,38 +76,32 @@ public class JoinCursor implements Cursor {
     @Override
     public boolean hasNext() {
         //TODO: HOW THE FUCK?!
-        return leftCursor.hasNext();
+        return leftCursor.hasNext() || rightCursor.hasNext();
     }
 
     @Override
     public Object next() {
-        while (leftCursor.next() != null) {
-            Record leftRecord = leftCursor.getCurrentRecord();
-            Record leftRecordCopy = leftRecord.clone();
-
-            while (rightCursor.next() != null) {
+        do {
+            while (rightCursor.hasNext()) {
+                rightCursor.next();
                 Record rightRecord = rightCursor.getCurrentRecord();
-                Record rightRecordCopy = rightRecord.clone();
-                if (match(leftRecordCopy, rightRecordCopy, onExpression)) {
-                    return concatRecords(leftRecordCopy, rightRecordCopy, onExpression);
+                Record leftRecord = leftCursor.getCurrentRecord();
+                if (match(leftRecord, rightRecord, onExpression)) {
+                    return concatRecords(leftRecord, rightRecord, onExpression);
                 }
             }
-            rightCursor.reset();
-        }
-        return null;
+            if (!leftCursor.hasNext()) {
+                return null;
+            } else {
+                leftCursor.next();
+                rightCursor.reset();
+            }
+        } while (true);
     }
 
     private Record concatRecords(Record leftRecord, Record rightRecord, Expression onExpression) {
         //TODO: another infernal wheelchair
         if (onExpression instanceof EqualsTo) {
-            Expression lhs = ((EqualsTo) onExpression).getLeftExpression();
-            Expression rhs = ((EqualsTo) onExpression).getRightExpression();
-            String leftColumnName = ((net.sf.jsqlparser.schema.Column)lhs).getFullyQualifiedName();
-            String rightColumnName = ((net.sf.jsqlparser.schema.Column)rhs).getFullyQualifiedName();
-
-            for (Map.Entry<Column, Object> entry : leftRecord.getValues().entrySet()) {
-
-            }
             Map<Column, Object> resultRecordMap = new HashMap<>();
 
             resultRecordMap.putAll(leftRecord.getValues());
@@ -126,10 +121,17 @@ public class JoinCursor implements Cursor {
             Expression rhs = ((EqualsTo) onExpression).getRightExpression();
             String leftColumnName = ((net.sf.jsqlparser.schema.Column)lhs).getColumnName();
             String rightColumnName = ((net.sf.jsqlparser.schema.Column)rhs).getColumnName();
+            //reflexivity, motherfucker!
             Object leftValue = getValueFromColumn(leftRecord, leftColumnName);
+            if (leftValue == null) {
+                leftValue = getValueFromColumn(leftRecord, rightColumnName);
+            }
             Object rightValue = getValueFromColumn(rightRecord, rightColumnName);
-            assert leftValue != null;
-            assert rightValue != null;
+            if (rightValue == null) {
+                rightValue = getValueFromColumn(rightRecord, leftColumnName);
+            }
+            assert leftValue == null;
+            assert rightValue == null;
             return leftValue.equals(rightValue);
         } else {
             //TODO: exception maybe?
